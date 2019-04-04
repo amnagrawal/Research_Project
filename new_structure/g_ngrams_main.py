@@ -1,16 +1,15 @@
-import re
 import os
 import pandas as pd
+import re
+
 from new_structure.modules.g_ngrams import parse_file
 
 folder_path = "../../Google_ngrams"
-
 
 regex_dict = {
     'verb': re.compile(r'[a-zA-Z]+_VERB'),
     'noun': re.compile(r'[a-zA-Z]+_NOUN'),
 }
-
 
 file_names = os.listdir(folder_path)
 
