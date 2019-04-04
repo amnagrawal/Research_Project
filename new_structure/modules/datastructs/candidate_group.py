@@ -1,6 +1,3 @@
-from .metaphor_candidate import MetaphorCandidate
-
-
 class CandidateGroup:
 
     def __init__(self):

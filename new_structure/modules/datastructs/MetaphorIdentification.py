@@ -1,5 +1,6 @@
 from new_structure.modules.datastructs.annotated_text import AnnotatedText
 
+
 class MetaphorIdentification:
     def __init__(self, text=""):
         self.rawText = text
