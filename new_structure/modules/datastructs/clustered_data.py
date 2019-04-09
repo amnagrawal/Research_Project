@@ -1,8 +1,3 @@
-import csv
-
-from . import cluster
-
-
 class ClusteredData:
 
     def __init__(self):

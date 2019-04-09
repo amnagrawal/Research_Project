@@ -1,6 +1,3 @@
-from .annotated_text import AnnotatedText
-
-
 class MetaphorCandidate:
 
     def __init__(self, annotatedText, sourceIndex, sourceSpan, targetIndex, targetSpan):

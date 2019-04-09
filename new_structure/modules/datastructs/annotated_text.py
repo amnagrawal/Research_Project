@@ -1,6 +1,6 @@
 import csv
-from nltk import pos_tag, word_tokenize
-from nltk.stem.wordnet import WordNetLemmatizer
+
+from nltk import word_tokenize
 
 
 class AnnotatedText:
