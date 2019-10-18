@@ -20,7 +20,7 @@ class MetaphorGroup:
 	def getResults(self):
 		results = list()
 		for i in range(self.size):
-			results.append(self.metaphors[i].getResult())
+			results.append(self.metaphors[i].getPredictedLabel())
 		return results
 
 	def getConfidences(self):

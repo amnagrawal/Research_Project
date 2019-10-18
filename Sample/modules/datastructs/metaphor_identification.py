@@ -3,21 +3,19 @@ from Sample.modules.datastructs.metaphor_group import MetaphorGroup
 from Sample.modules.datastructs.candidate_group import CandidateGroup
 from Sample.modules.datastructs.candidate import Candidate
 
-
 import editdistance
 import pandas as pd
 
 
 class MetaphorIdentification:
     def __init__(self):
-        self.mLabeler = {}
-        self.cFinder = {}
+        self.mLabelers = {}
+        self.cFinders = {}
 
         self.rawTexts = []
         self.annotatedTexts = {}
         self.candidates = {}
         self.metaphors = {}
-
 
         # rawTexts = list of strings (each string is a text in which we want to find metaphors)
         # annotatedTexts = dictionary: key = numbers (index of string in rawTexts), values = AnnotatedText objects
@@ -26,27 +24,26 @@ class MetaphorIdentification:
         # metaphors = dictionary: key = mlabeler IDs, values = dictionaries
         # -> dictionaries: key = numbers (index of string in rawTexts), values = MetaphorGroup objects
 
-
-    ### Procedures concerning the metaphor labelers and the candidate finders
+    # Procedures concerning the metaphor labelers and the candidate finders
     def addMLabeler(self, id, function):
-        self.mLabeler[id] = function
+        self.mLabelers[id] = function
 
     def addCFinder(self, id, function):
-        self.cFinder[id] = function
+        self.cFinders[id] = function
 
     def getMLabeler(self, id):
-        return self.mLabeler[id]
+        return self.mLabelers[id]
 
     def getCFinder(self, id):
-        return self.cFinder[id]
+        return self.cFinders[id]
 
     def isMLabeler(self, id):
-        return id in self.mLabeler
+        return id in self.mLabelers
 
     def isCFinder(self, id):
-        return id in self.cFinder
+        return id in self.cFinders
 
-    ### Procedures concerning one element
+    # Procedures concerning one element
     def addText(self, text):
         if isinstance(text, list):
             for t in text:
@@ -61,10 +58,10 @@ class MetaphorIdentification:
         return self.annotatedTexts.get(index, "")
 
     def getCandidates(self, index=0):
-        return self.candidates[index] # What to return in case index is not in dictionary?
+        return self.candidates[index]  # What to return in case index is not in dictionary?
 
     def getMetaphors(self, index=0):
-        return self.metaphors[index] # What to return in case index is not in dictionary?
+        return self.metaphors[index]  # What to return in case index is not in dictionary?
 
     def annotateText(self, index=0):
         '''Annotate the raw text of index index'''
@@ -86,12 +83,12 @@ class MetaphorIdentification:
         return labelingFunction(self.candidates[cfinder_id][index], cand_type, verbose)
 
     # Procedures concerning dictionaries
-    def getAllMetaphors(self, min_confidence = 0):
+    def getAllMetaphors(self, min_confidence=0):
         '''Return an object MetaphorGroup containing the metaphors for all texts'''
         global_dic = dict()
-        for k1, v1 in self.metaphors.items(): #for each mlabeler
+        for k1, v1 in self.metaphors.items():  # for each mlabeler
             dic = dict()
-            for k2, v2 in v1.items(): #v2 is a metaphorGroup
+            for k2, v2 in v1.items():  # v2 is a metaphorGroup
                 v2 = v2.filterByConfidence(min_confidence)
                 dic[k2] = str(v2)
             global_dic[k1] = dic
@@ -235,12 +232,12 @@ class MetaphorIdentification:
             for i in range(len(self.candidates[cfinder_id])):  # for each text
                 bool_list = list()
                 first_mlabeler = dic[ids[0]]
-                for j in range(len(first_mlabeler[i])):        # for each metaphor
+                for j in range(len(first_mlabeler[i])):  # for each metaphor
                     tmp = list()
-                    for mlabeler_id in ids:                    # for each mlabeler
+                    for mlabeler_id in ids:  # for each mlabeler
                         tmp.append(dic[mlabeler_id][i][j])  # tmp contains the results for each method
-                    n = len(set(tmp))                       # number of unique values in the list tmp
-                    if n == 1:                              # If n=1 it means that all mlabelers agree
+                    n = len(set(tmp))  # number of unique values in the list tmp
+                    if n == 1:  # If n=1 it means that all mlabelers agree
                         bool_list.append(True)
                     else:
                         bool_list.append(False)
@@ -250,7 +247,6 @@ class MetaphorIdentification:
 
     def percentageOfMetaphorical(self, ids, cfinder_id, cand_type, verbose=False, already_labeled=False):
         N_ids = len(ids)
-        dic = dict()
         percent = dict()
 
         if len(self.candidates[cfinder_id]) == 0:
@@ -274,9 +270,10 @@ class MetaphorIdentification:
             return percent
 
     def cohenKappa(self, mlabeler_id_1, mlabeler_id_2, cfinder_id, cand_type, verbose=False, already_labeled=False):
-        '''The cohen's kappa is a measurement of the similarity between the output of 2 mlabelers'''
+        """The cohen's kappa is a measurement of the similarity between the output of 2 mlabelers"""
         # p0 = n_agreement / n_metaphors
-        agree_dict = self.agreeMLabelers([mlabeler_id_1, mlabeler_id_2], cfinder_id, cand_type, verbose, already_labeled)
+        agree_dict = self.agreeMLabelers([mlabeler_id_1, mlabeler_id_2], cfinder_id, cand_type, verbose,
+                                         already_labeled)
         count_agree, count_metaphors = 0, 0
         for k, v in agree_dict.items():  # for each text
             count_metaphors += len(v)
@@ -286,7 +283,7 @@ class MetaphorIdentification:
         # pe = pTrue + pFalse
         # pTrue = (n_True_ml1 * n_True_ml2) / n_metaphors^2
         # pFalse = (n_False_ml1 * n_False_ml2) / n_metaphors^2
-        n_True_ml1, n_True_ml2, n_False_ml1, n_False_ml2 = 0,0,0,0
+        n_True_ml1, n_True_ml2, n_False_ml1, n_False_ml2 = 0, 0, 0, 0
         ml1, ml2 = self.metaphors[mlabeler_id_1], self.metaphors[mlabeler_id_2]
 
         for i, mg in ml1.items():  # for each text
@@ -299,8 +296,8 @@ class MetaphorIdentification:
             n_True_ml2 += r.count(True)
             n_False_ml2 += r.count(False)
 
-        pTrue = (n_True_ml1 * n_True_ml2) / count_metaphors**2
-        pFalse = (n_False_ml1 * n_False_ml2) / count_metaphors**2
+        pTrue = (n_True_ml1 * n_True_ml2) / count_metaphors ** 2
+        pFalse = (n_False_ml1 * n_False_ml2) / count_metaphors ** 2
         pe = pTrue + pFalse
 
         k = (p0 - pe) / (1 - pe)
@@ -314,8 +311,10 @@ class MetaphorIdentification:
         # mlabeler_label
         # mlabeler_confidence
         # mlabeler_correct
-        data = list()
 
+        data = dict()
+
+        # Group all data by (source, target, label)
         for mlabelerID, metGroupDict in self.metaphors.items():
             for mgNumber, metaphorGroup in metGroupDict.items():
                 mgSize = metaphorGroup.getSize()
@@ -324,18 +323,29 @@ class MetaphorIdentification:
                     label = metaphor.getLabel()
                     predictedLabel = metaphor.getPredictedLabel()
 
-                    temp_dict = dict()
-                    temp_dict['Source'] = metaphor.getSource()
-                    temp_dict['Target'] = metaphor.getTarget()
-                    temp_dict['Label'] = label
+                    id = (metaphor.getSource(), metaphor.getTarget(), label)
+                    temp_dict = data.get(id, dict())
+
                     temp_dict[mlabelerID + 'PredictedLabel'] = predictedLabel
                     temp_dict[mlabelerID + 'Confidence'] = metaphor.getConfidence()
                     temp_dict[mlabelerID + 'IsCorrect'] = 1 if label == predictedLabel else 0
 
-                    data.append(temp_dict)
+                    data[id] = temp_dict
 
-        data = pd.DataFrame(data)
-        data.to_csv(filename, index=False)
+        df = list()
+
+        # Format the data for csv exportation
+        for id, row in data.items():
+            dfRow = {'source': id[0], 'target': id[1], 'label': id[2]}
+
+            for name, value in row.items():
+                dfRow[name] = value
+            df.append(dfRow)
+
+        df = pd.DataFrame(df)
+
+        # Export data
+        df.to_csv(filename, index=False)
 
 
 def findPairInList(w1, w2, word_list):

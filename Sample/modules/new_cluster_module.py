@@ -6,6 +6,7 @@ import re
 import ast
 import os
 import pickle
+from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
 from .datastructs.metaphor_group import MetaphorGroup
 from .datastructs.metaphor import Metaphor
@@ -25,16 +26,15 @@ def parseVerbClusterFile(file):
 
     with open(file, 'r') as file:
         lines = file.readlines()
-        name = ""
-        content = []
+        cluster = ""
         for l in lines:
             if l.startswith(" <"):
-                name = re.findall(r'"([^"]*)"', l)[0]
+                cluster = re.findall(r'"([^"]*)"', l)[0]
             elif l.startswith("-"):
                 continue
             else:
                 content = l.split()
-                cluster2verb[name] = content
+                cluster2verb[cluster] = content
 
     return cluster2verb
 
@@ -63,10 +63,10 @@ def parseNounClusterFile(file):
             newClusterContent["words"] = []
 
             wordsInLine = l.split()
-            name = wordsInLine[0][7:]
+            cluster = wordsInLine[0][7:]
             content = wordsInLine[1:]
 
-            cluster2noun[name] = content
+            cluster2noun[cluster] = content
 
     return  cluster2noun
 
@@ -96,27 +96,43 @@ def getTagsFromCSV(path):
 
 
 # cluster2label maps a pair of clusters
-def createLabelClustersDatastruct(tagsPath=TROFI_TAGS, verbClustersPath=VERBNET, nounClustersPath=NOUNS):
+# def createLabelClustersDatastruct(tagsPath=TROFI_TAGS, verbClustersPath=VERBNET, nounClustersPath=NOUNS):
+def createLabelClustersDatastruct(DB):
     cluster2label = dict()
 
-    labeledPairs = getTagsFromCSV(tagsPath)
-    cluster2verb, verb2cluster = createVerbClustersDatastruct(verbClustersPath)
-    cluster2noun, noun2cluster = createNounClustersDatastruct(nounClustersPath)
+    for pair, labels in DB['pairs'].items():
+        verbCluster = getWordCluster(pair[0], DB, 'verb')
+        nounCluster = getWordCluster(pair[1], DB, 'noun')
 
-    countUselessPairs = 0
+        if verbCluster == -1:
+            verbVector = getVector(DB, pair[0])
 
-    for pair, labels in labeledPairs.items():
-        verbCluster = verb2cluster.get(pair[0], -1)
-        nounCluster = noun2cluster.get(pair[1], -1)
+            # If the verb has a vector, we can add it to the clusters
+            if len(verbVector) > 0:
+                verbCluster, DB = addWordToCluster(DB, pair[0], 'verb')
+                # print('Verb:', pair[0], 'not found in the clusters -> assigned to cluster:', verbCluster)
 
-        if verbCluster == -1 or nounCluster == -1:
-            countUselessPairs += 1
-            continue
+            # Otherwise, we cannot, so we skip this pair
+            else:
+                # print('Verb:', pair[0], 'not found in the clusters but it has no vector -> we cannot do anything')
+                continue
+
+        if nounCluster == -1:
+            nounVector = getVector(DB, pair[1])
+
+            # If the noun has a vector, we can add it to the clusters
+            if len(nounVector) > 0:
+                nounCluster, DB = addWordToCluster(DB, pair[1], 'noun')
+                # print('Noun:', pair[1], 'not found in the clusters -> assigned to cluster:', nounCluster)
+
+            # Otherwise, we cannot, so we skip this pair
+            else:
+                print('Noun:', pair[1], 'not found in the clusters but it has no vector -> we cannot do anything')
+                continue
 
         L = cluster2label.get((verbCluster, nounCluster), [])
         L.extend(labels)
         cluster2label[(verbCluster, nounCluster)] = L
-
 
     for pair, labels in cluster2label.items():
         nLabels = len(labels)
@@ -131,91 +147,145 @@ def createLabelClustersDatastruct(tagsPath=TROFI_TAGS, verbClustersPath=VERBNET,
         else:
             cluster2label[pair] = ("N", metaphoricalConfidence)
 
-    print('Number of useless pairs', countUselessPairs, 'out of', len(labeledPairs.keys()), 'seed pairs')
-    print('Number of cluster relationships', len(cluster2label.keys()))
-
     return cluster2label
 
+def getVector(DB, word):
+    firstLetter = word[0]
+    # return DB['vectors'][firstLetter].get(word, [])
+    return DB['vectors'].get(firstLetter, dict()).get(word, list())
 
-def loadDB():
-    DB = dict()
-    print("Create cluster2verb")
-    DB['cluster2verb'], DB['verb2cluster'] = createVerbClustersDatastruct(VERBNET)
-    print("Create cluster2noun")
-    DB['cluster2noun'], DB['noun2cluster'] = createNounClustersDatastruct(NOUNS)
-    print("Create cluster2label")
-    DB['cluster2label'] = createLabelClustersDatastruct(TROFI_TAGS, VERBNET, NOUNS)
-    DB['labeledVectors'] = dict()
-    DB['unlabeledVectors'] = dict()
+def getWordCluster(word, DB, pos):
+    if pos == 'verb':
+        id = "verb2cluster"
+    elif pos == 'noun':
+        id = "noun2cluster"
 
-    for key, path in VECTORS_PATHS.items():
-        print("Load", key)
-        filenames = os.listdir(path)
-        for f in filenames:
-            file = open(path + f, "rb")
-            data = pickle.load(file)
-            file.close()
-            DB[key][f[0]] = data
+    wordCluster = DB[id].get(word, -1)
+
+    return wordCluster
+
+def addWordToCluster(DB, word, pos):
+    try:
+        wordVector = getVector(DB, word).reshape(1, -1)
+    except:
+        wordVector = []
+
+    if pos == 'verb':
+        id = "verb2cluster"
+        id2 = "cluster2verb"
+    elif pos == 'noun':
+        id = "noun2cluster"
+        id2 = "cluster2noun"
+
+    otherWords = list(DB[id].keys())
+
+    # 1: Find the 5 most similar words to word
+    # 2: Choose the cluster which contains most of these similar words
+    # 3: Add the new word to this cluster
+
+    # 1
+    similarWords = list()
+    for otherWord in otherWords:
+        try:
+            otherWordVector = getVector(DB, otherWord).reshape(1, -1)
+        except:
+            # If we have no vector, we cannot calculate the similarity -> ignore this otherWord
+            continue
+
+        sim = cosine_similarity(wordVector, otherWordVector)[0][0]
+
+        if len(similarWords) < 5:
+            similarWords.append((otherWord, sim))
+            similarWords = sorted(similarWords, key= lambda x: x[1], reverse=True) # Sort by similarity in decreasing order
+        else:
+            minSim = similarWords[-1][1]
+
+            if sim > minSim:
+                similarWords.append((otherWord, sim))
+                similarWords = sorted(similarWords, key=lambda x: x[1], reverse=True)[:5] # Keep only the five most similar
+
+    # 2
+    clusters = [DB[id][sw[0]] for sw in similarWords]
+    clusters = Counter(clusters)
+    clusterID = clusters.most_common(1)[0][0]
+
+    # 3
+    DB[id][word] = clusterID
+    DB[id2][clusterID].append(word)
+
+    return clusterID, DB
+
+def loadWordVectors(DB):
+    DB['vectors'] = dict()
+
+    vector_path = './data/clustering/DB/word_vectors/'
+    filenames = os.listdir(vector_path)
+    for f in filenames:
+        file = open(vector_path + f, "rb")
+        data = pickle.load(file)
+        file.close()
+        DB['vectors'][f[0]] = data
 
     return DB
 
 
-def getVector(DB, word):
-    firstLetter = word[0]
-    if word in DB['labeledVectors'][firstLetter].keys():
-        return DB['labeledVectors'][firstLetter][word]
-    elif word in DB['unlabeledVectors'][firstLetter].keys():
-        return DB['unlabeledVectors'][firstLetter][word]
+def buildDB():
+    DB = dict()
+
+    # Noun Clusters
+    print("Loading the verb clusters...")
+    DB['cluster2verb'], DB['verb2cluster'] = createVerbClustersDatastruct(VERBNET)
+
+    # Verb Clusters
+    print("Loading the noun clusters...")
+    DB['cluster2noun'], DB['noun2cluster'] = createNounClustersDatastruct(NOUNS)
+
+    # Vectors
+    print("Loading the word vectors...")
+    DB = loadWordVectors(DB)
+
+    # Pairs of words
+    print("Loading the pairs of words...")
+    DB['pairs'] = getTagsFromCSV(TROFI_TAGS)
+
+    print("Labeling the cluster pairs...")
+    DB['cluster2label'] = createLabelClustersDatastruct(DB)
+
+    return DB
+
+# Above this line are the functions used to build the database used to label the metaphores
+# Run the file cluster_main.py to build the database
+# ---------------------------------------------------------------------------------------------------------------------------------------- #
+# below this line are the functions used to label the metaphors
 
 
-def getWordCluster(word, DB, pos):
-    if pos == 'verb':
-        id = ("verb2cluster", "cluster2verb")
-    elif pos == 'noun':
-        id = ("noun2cluster", "cluster2noun")
+def loadFile(filename):
+    file = open('./data/clustering/' + filename + '.pickle', 'rb')
+    data = pickle.load(file)
+    file.close()
+    return data
 
-    wordCluster = DB[id[0]].get(word, -1)
+def loadDB():
+    DB = dict()
 
-    if wordCluster != -1:
-        return wordCluster
+    DB['cluster2label'] = loadFile('cluster2label')
+    DB['noun2cluster'] = loadFile('noun2cluster')
+    DB['verb2cluster'] = loadFile('verb2cluster')
+    DB['cluster2verb'] = loadFile('cluster2verb')
+    DB['cluster2noun'] = loadFile('cluster2noun')
+    DB = loadWordVectors(DB)
 
-    # Find a cluster where the words are similar to verb
-    cluster2averageSimilarity = dict()
+    return DB
 
-    try:
-        wordVector = getVector(DB, word).reshape(1, -1)
-    except:
-        return -1
-
-    for cluster, words in DB[id[1]].items():
-        similarities = list()
-        for otherWord in words:
-            try:
-                otherWordVector = getVector(DB, otherWord).reshape(1, -1)
-            except:
-                continue
-            similarities.append(cosine_similarity(wordVector, otherWordVector)[0][0])
-        if similarities != []:
-            cluster2averageSimilarity[cluster] = sum(similarities) / float(len(similarities))
-
-    c = -1
-    max_sim = -1
-    for cluster, sim in cluster2averageSimilarity.items():
-        if sim > max_sim:
-            c = cluster
-            max_sim = sim
-
-    return c
-
-
-def getResult(sourceCluster, targetCluster, DB):
+def getResult(sourceCluster, targetCluster, DB, count):
     pair = (sourceCluster, targetCluster)
 
     if pair in DB['cluster2label'].keys():
-        return DB['cluster2label'][pair]
+        return DB['cluster2label'][pair], count
     else:
-        # print("Don't know")
-        return (False, 0.0)
+        count += 1
+        print(sourceCluster, targetCluster)
+        return (False, 0.0), count
 
 
 def newClusterModule(candidates, cand_type, verbose):
@@ -223,7 +293,7 @@ def newClusterModule(candidates, cand_type, verbose):
     # 2. If no cluster
     #   1. use cluster2verb to find the cluster in which the verb could fit
     #   2. Use this cluster
-    # 3. Use noun2cluster to find th cluster of the noun
+    # 3. Use noun2cluster to find the cluster of the noun
     # 4. If no cluster
     #   1. use cluster2noun to find the cluster in which the noun could fit
     #   2. use this cluster
@@ -231,6 +301,7 @@ def newClusterModule(candidates, cand_type, verbose):
 
     results = MetaphorGroup()
     DB = loadDB()
+    count = 0
 
     for c in candidates:
         source = c.getSource()
@@ -239,21 +310,33 @@ def newClusterModule(candidates, cand_type, verbose):
         sourceCluster = getWordCluster(source, DB, 'verb')
         targetCluster = getWordCluster(target, DB, 'noun')
 
-        # if sourceCluster != -1:
-            # print(source)
-            # print(DB['cluster2verb'][sourceCluster])
-        # if targetCluster != -1:
-            # print(target)
-            # print(DB['cluster2noun'][targetCluster])
+        if sourceCluster == -1:
+            sourceVector = getVector(DB, source)
 
-        result = getResult(sourceCluster, targetCluster, DB)
+            # If the verb has a vector, we can add it to the clusters
+            if len(sourceVector) > 0:
+                sourceCluster, DB = addWordToCluster(DB, source, 'verb')
+            else:
+                pass
+                # print(source, 'has no vector -> we cannot assign it to a cluster')
+
+        if targetCluster == -1:
+            targetVector = getVector(DB, target)
+
+            # If the noun has a vector, we can add it to the clusters
+            if len(targetVector) > 0:
+                targetCluster, DB = addWordToCluster(DB, target, 'noun')
+            else:
+                pass
+                # print(target, 'has no vector -> we cannot assign it to a cluster')
+
+        result, count = getResult(sourceCluster, targetCluster, DB, count)
         label = (result[0] == "N") # Assign True to label if Non-Literal, False otherwise
         confidence = result[1]
-        # print('')
 
         results.addMetaphor(Metaphor(c, label, confidence))
 
+    print(count, '/', candidates.getSize())
     return results
 
-if __name__ == '__main__':
-    import pandas as pd
+

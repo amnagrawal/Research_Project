@@ -1,10 +1,12 @@
 from Sample.modules.datastructs.clustered_data import ClusteredData
 from Sample.modules.parsing_functions import parseVerbNet, parseNouns, parseTroFi
 from Sample.modules.utils import writeToCSV
-from Sample.modules.cluster_module import buildDB
+# from Sample.modules.cluster_module import buildDB
+from Sample.modules.new_cluster_module import buildDB
 from nltk.parse.stanford import StanfordDependencyParser
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import wordnet
+import pickle
 import sys
 import ast
 import csv
@@ -83,6 +85,11 @@ def tagsToCSV(tags):
 	writeToCSV(dictList, "data/trofi_tags_bis.csv", ["Verb", "Noun", "Labels"])
 
 
+def createPickleFile(path ,name, DB):
+	file = open(path + name + '.pickle', 'wb')
+	pickle.dump(DB[name], file)
+	file.close
+
 if __name__ == '__main__':
 	# Uncomment to build the TroFi database
 	'''
@@ -106,4 +113,12 @@ if __name__ == '__main__':
 		print(tags)
 		tagsToCSV(tags)
 	'''
-	buildDB()
+	# buildDB()
+	DB = buildDB()
+	path = './data/clustering/'
+
+	createPickleFile(path, 'cluster2label', DB)
+	createPickleFile(path, 'verb2cluster', DB)
+	createPickleFile(path, 'cluster2verb', DB)
+	createPickleFile(path, 'noun2cluster', DB)
+	createPickleFile(path, 'cluster2noun', DB)
