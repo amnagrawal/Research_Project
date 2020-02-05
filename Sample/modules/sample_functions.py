@@ -7,8 +7,8 @@ from .datastructs.candidate import Candidate
 from .datastructs.metaphor_group import MetaphorGroup
 from .datastructs.metaphor import Metaphor
 
-def getWordnetPos(tag):
 
+def getWordnetPos(tag):
     if tag.startswith('J'):
         return wordnet.ADJ
     elif tag.startswith('V'):
@@ -20,109 +20,120 @@ def getWordnetPos(tag):
     else:
         return ''
 
+
 # Use NLTK pos_tag function
 def posFunction(annotatedText):
-	finalPos = []
-	sentence = []
-	if (annotatedText.isColumnPresent("word")):
-		sentence = annotatedText.getColumn("word")
-	else:
-		return finalPos
-	pos = pos_tag(sentence)
-	for i in range(len(pos)):
-		finalPos.append(pos[i][1])
-	return finalPos
+    finalPos = []
+    sentence = []
+    if annotatedText.isColumnPresent("word"):
+        sentence = annotatedText.getColumn("word")
+    else:
+        return finalPos
+    pos = pos_tag(sentence)
+    for i in range(len(pos)):
+        finalPos.append(pos[i][1])
+    return finalPos
 
 
 # Use NLTK WordNetLemmatizer function
 def lemmatizingFunction(annotatedText):
-	lemm = WordNetLemmatizer()
-	posTags = []
-	finalLem = []
-	sentence = []
-	if (annotatedText.isColumnPresent("word")):
-		sentence = annotatedText.getColumn("word")
-	else:
-		return finalLem
-	if (annotatedText.isColumnPresent("POS")):
-		posTags = annotatedText.getColumn("POS")
-	else:
-		return finalLem
+    lemm = WordNetLemmatizer()
+    posTags = []
+    finalLem = []
+    sentence = []
+    if annotatedText.isColumnPresent("word"):
+        sentence = annotatedText.getColumn("word")
+    else:
+        return finalLem
+    if annotatedText.isColumnPresent("POS"):
+        posTags = annotatedText.getColumn("POS")
+    else:
+        return finalLem
 
-	for i in range(len(sentence)):
-		curentTag = getWordnetPos(posTags[i])
-		if (curentTag):
-			finalLem.append(lemm.lemmatize(sentence[i], curentTag))
-		else:
-			finalLem.append(lemm.lemmatize(sentence[i]))
-	return finalLem
+    for i in range(len(sentence)):
+        curentTag = getWordnetPos(posTags[i])
+        if (curentTag):
+            finalLem.append(lemm.lemmatize(sentence[i], curentTag))
+        else:
+            finalLem.append(lemm.lemmatize(sentence[i]))
+    return finalLem
 
 
 def testIDFunction(annotatedText):
-	candidates = CandidateGroup()
-	testCandidate = Candidate(annotatedText, 2, (0, 2), 6, (6,6))
-	candidates.addCandidate(testCandidate)
-	return candidates
+    candidates = CandidateGroup()
+    testCandidate = Candidate(annotatedText, 2, (0, 2), 6, (6, 6))
+    candidates.addCandidate(testCandidate)
+    return candidates
+
 
 def adjNounFinder(annotatedText):
-	candidates = CandidateGroup()
-	POScolumn = annotatedText.getColumn("POS")
-	candidate = []
-	currentAdjectives = []
-	for i in range(len(POScolumn)-1):
-		if (POScolumn[i] == 'JJ' and POScolumn[i+1].startswith('NN')):
-			currentAdjIndex = i
-			currentNounIndex = i+1
-			while (currentNounIndex < len(POScolumn) and POScolumn[currentNounIndex].startswith('NN')):
-				currentNounIndex += 1
-			while (currentAdjIndex >= 0 and POScolumn[currentAdjIndex] == 'JJ'):
-				newCandidate = Candidate(annotatedText, currentAdjIndex, (currentAdjIndex, currentAdjIndex), currentNounIndex-1, (i+1,currentNounIndex-1))
-				candidates.addCandidate(newCandidate)
-				currentAdjIndex -= 1
-
-	return candidates
+    candidates = CandidateGroup()
+    POScolumn = annotatedText.getColumn("POS")
+    candidate = []
+    currentAdjectives = []
+    for i in range(len(POScolumn) - 1):
+        #		if (POScolumn[i]=='JJ'):
+        #			print("adjNoun({})={} -- {}".format(i,POScolumn[i],POScolumn[i+1]))
+        if POScolumn[i] == 'JJ' and POScolumn[i + 1].startswith('NN'):
+            currentAdjIndex = i
+            currentNounIndex = i + 1
+            #			print("Creating candidate...")
+            while (currentNounIndex < len(POScolumn) and POScolumn[currentNounIndex].startswith('NN')):
+                currentNounIndex += 1
+            #			print("Creating candidate for {} -- {}".format(i,currentNounIndex))
+            while (currentAdjIndex >= 0 and POScolumn[currentAdjIndex] == 'JJ'):
+                newCandidate = Candidate(annotatedText, currentAdjIndex, (currentAdjIndex, currentAdjIndex),
+                                         currentNounIndex - 1, (i + 1, currentNounIndex - 1))
+                candidates.addCandidate(newCandidate)
+                #				print("New Candidate {}".format(newCandidate))
+                currentAdjIndex -= 1
+    #	print(candidates)
+    return candidates
 
 
 # Finds the verb and the next noun in the sentence
 def verbNounFinder(annotatedText):
-	candidates = CandidateGroup()
-	POScolumn = annotatedText.getColumn("POS")
-	wordColumn = annotatedText.getColumn("word")
-	candidate = []
-	currentAdjectives = []
-	for i in range(len(POScolumn)-1):
-		if POScolumn[i].startswith('VB'):
-			currentVerbIndex = i
-			currentNounIndex = i
-			while (currentNounIndex < len(POScolumn) and wordColumn[currentNounIndex]!="." and not(POScolumn[currentNounIndex].startswith('NN'))):
-				currentNounIndex += 1
-			if currentNounIndex < len(POScolumn) and POScolumn[currentNounIndex].startswith('NN'):
-				newCandidate = Candidate(annotatedText, currentVerbIndex, (currentVerbIndex, currentVerbIndex), currentNounIndex, (currentNounIndex, currentNounIndex))
-				candidates.addCandidate(newCandidate)
+    candidates = CandidateGroup()
+    POScolumn = annotatedText.getColumn("POS")
+    wordColumn = annotatedText.getColumn("word")
+    candidate = []
+    currentAdjectives = []
+    for i in range(len(POScolumn) - 1):
+        if POScolumn[i].startswith('VB'):
+            currentVerbIndex = i
+            currentNounIndex = i
+            while (currentNounIndex < len(POScolumn) and wordColumn[currentNounIndex] != "." and not (
+                    POScolumn[currentNounIndex].startswith('NN'))):
+                currentNounIndex += 1
+            if currentNounIndex < len(POScolumn) and POScolumn[currentNounIndex].startswith('NN'):
+                newCandidate = Candidate(annotatedText, currentVerbIndex, (currentVerbIndex, currentVerbIndex),
+                                         currentNounIndex, (currentNounIndex, currentNounIndex))
+                candidates.addCandidate(newCandidate)
 
-	return candidates
+    return candidates
+
 
 # Need modification for sources or targets that are more than 1 word long
 def candidateFromPair(annotatedText, source, target):
-	if source in annotatedText.words:
-		sourceIndex = annotatedText.words.index(source)
-	else:
-		sourceIndex = annotatedText.getColumn("lemma").index(source)
+    if source in annotatedText.words:
+        sourceIndex = annotatedText.words.index(source)
+    else:
+        sourceIndex = annotatedText.getColumn("lemma").index(source)
 
-	if target in annotatedText.words:
-		targetIndex = annotatedText.words.index(target)
-	else:
-		targetIndex = annotatedText.getColumn("lemma").index(target)
+    if target in annotatedText.words:
+        targetIndex = annotatedText.words.index(target)
+    else:
+        targetIndex = annotatedText.getColumn("lemma").index(target)
 
-	sourceSpan = (sourceIndex,sourceIndex)
-	targetSpan = (targetIndex, targetIndex)
+    sourceSpan = (sourceIndex, sourceIndex)
+    targetSpan = (targetIndex, targetIndex)
 
-	return Candidate(annotatedText, sourceIndex, sourceSpan, targetIndex, targetSpan)
+    return Candidate(annotatedText, sourceIndex, sourceSpan, targetIndex, targetSpan)
 
 
 # TODO: Write function that finds a verb and its object using a dependancy parser
 '''
-def verbObjFinder(annotatedText):`
+def verbObjFinder(annotatedText):
 	candidates = CandidateGroup()
 	text = annotatedText.getText()
 
@@ -147,12 +158,13 @@ def verbObjFinder(annotatedText):`
 		currentIndex += 1
 '''
 
-def testLabelFunction(candidates):
-	results = MetaphorGroup()
-	for c in candidates:
-		if (c.getSource()[0] == c.getTarget()[0]):
-			results.addMetaphor(Metaphor(c, True, 0.5))
-		else:
-			results.addMetaphor(Metaphor(c, False, 0.5))
 
-	return results
+def testLabelFunction(candidates):
+    results = MetaphorGroup()
+    for c in candidates:
+        if (c.getSource()[0] == c.getTarget()[0]):
+            results.addMetaphor(Metaphor(c, True, 0.5))
+        else:
+            results.addMetaphor(Metaphor(c, False, 0.5))
+
+    return results

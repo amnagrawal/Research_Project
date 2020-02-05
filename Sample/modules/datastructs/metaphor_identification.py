@@ -57,34 +57,37 @@ class MetaphorIdentification:
     def getAnnotatedText(self, index=0):
         return self.annotatedTexts.get(index, "")
 
-    def getCandidates(self, index=0):
+    def getCandidates(self, index):
+        print("getting candidates {}".format(index))
         return self.candidates[index]  # What to return in case index is not in dictionary?
 
     def getMetaphors(self, index=0):
         return self.metaphors[index]  # What to return in case index is not in dictionary?
 
     def annotateText(self, index=0):
-        '''Annotate the raw text of index index'''
+        """Annotate the raw text of index index"""
         self.annotatedTexts[index] = AnnotatedText(self.rawTexts[index])
 
     def annotTextAddColumn(self, name, annotationFunc, index=0):
-        '''Add a column filled with the result of annotationFunc in the annotatedText of index index'''
+        """Add a column filled with the result of annotationFunc in the annotatedText of index index"""
         newCol = annotationFunc(self.annotatedTexts[index])
         self.annotatedTexts[index].addColumn(name, newCol)
 
     def __findCandidates(self, cfinder_id, index=0):
-        '''Apply the identificationFunction to find candidates in the annotated text of index index'''
+        """Apply the identificationFunction to find candidates in the annotated text of index index"""
         identificationFunction = self.getCFinder(cfinder_id)
-        return identificationFunction(self.annotatedTexts[index])
+        foundCandidates = identificationFunction(self.annotatedTexts[index])
+        print("__findCandidates() = {}".format(foundCandidates))
+        return foundCandidates
 
     def __labelMetaphors(self, mlabeler_id, cfinder_id, cand_type, index=0, verbose=False):
-        '''Apply the labelingFunction to create metaphors from candidates in the candidateGroup of index index'''
+        """Apply the labelingFunction to create metaphors from candidates in the candidateGroup of index index"""
         labelingFunction = self.getMLabeler(mlabeler_id)
         return labelingFunction(self.candidates[cfinder_id][index], cand_type, verbose)
 
     # Procedures concerning dictionaries
     def getAllMetaphors(self, min_confidence=0):
-        '''Return an object MetaphorGroup containing the metaphors for all texts'''
+        """Return an object MetaphorGroup containing the metaphors for all texts"""
         global_dic = dict()
         for k1, v1 in self.metaphors.items():  # for each mlabeler
             dic = dict()
@@ -95,27 +98,27 @@ class MetaphorIdentification:
         return global_dic
 
     def annotateAllTexts(self):
-        '''Annotate all the raw texts in the list rawText'''
+        """Annotate all the raw texts in the list rawText"""
         for index in range(len(self.rawTexts)):
             self.annotateText(index)
 
     def allAnnotTextAddColumn(self, name, annotationFunc):
-        '''Add a column to all annotated texts in the dictionary annotatedTexts'''
+        """Add a column to all annotated texts in the dictionary annotatedTexts"""
         for index in range(len(self.annotatedTexts)):
             self.annotTextAddColumn(name, annotationFunc, index)
 
     def findAllCandidates(self, cfinder_id):
-        '''Find the candidates in all annotated texts'''
+        """Find the candidates in all annotated texts"""
         dic = self.candidates.get(cfinder_id, dict())
 
         for index in range(len(self.annotatedTexts)):
             dic[index] = self.__findCandidates(cfinder_id, index)
             # self.findCandidates(identificationFunctionID, index)
-
+        print("self.candidates[{}] = {}".format(cfinder_id,dic))
         self.candidates[cfinder_id] = dic
 
     def labelAllMetaphors(self, mlabeler_id, cfinder_id, cand_type, verbose=False):
-        '''Label all candidates in the dictionary Candidates'''
+        """Label all candidates in the dictionary Candidates"""
         dic = self.metaphors.get(mlabeler_id, dict())
 
         for index in range(len(self.candidates[cfinder_id])):
@@ -125,12 +128,12 @@ class MetaphorIdentification:
         self.metaphors[mlabeler_id] = dic
 
     def labelAllMetaphorsOneGroup(self, mlabeler_id, cfinder_id, cand_type, verbose=False):
-        '''
+        """
         Label all candidates in the dictionary Candidates
         The difference from labelAllMetaphors is that, in this function, the mlabeler is called only once.
         All the candidate groups which corresponds to the different sentences are grouped into one big candidate group.
-        The big metaphor groups that we get is then splitted in small metaphor groups which match the original small candidate groups
-        '''
+        The big metaphor groups that we get is then split in small metaphor groups which match the original small candidate groups
+        """
         dic = self.metaphors.get(mlabeler_id, dict())
 
         # 1: Create the big candidate group
@@ -160,10 +163,10 @@ class MetaphorIdentification:
         self.metaphors[mlabeler_id] = dic
 
     def allCandidatesFromFile(self, source_list, target_list, label_list, indices_list):
-        '''
+        """
             Create candidates from three lists
             Can be used to creates candidates from a CSV file which specify the candidates for a metaphor
-        '''
+        """
 
         dic = self.candidates.get('fromFile', dict())
 
@@ -203,7 +206,7 @@ class MetaphorIdentification:
         dic = dict()
 
         for mlabeler_id in ids:  # for each mlabeler
-            if already_labeled == False:
+            if not already_labeled:
                 self.labelAllMetaphors(mlabeler_id, cfinder_id, cand_type, verbose)
             bool_dic = dict()
             for i, mg in self.metaphors[mlabeler_id].items():  # for each text
@@ -213,13 +216,13 @@ class MetaphorIdentification:
         return dic
 
     def agreeMLabelers(self, ids, cfinder_id, cand_type, verbose=False, already_labeled=False):
-        '''
+        """
             Returns a dictionary indexed by texts.
             Each value is a list of booleans. The length of the list is equal to the number
             of possible metaphors (number of candidates) in the text.
             The booleans are True if all mlabeler agree on the result (metaphorical or literal),
             they are False if at least one of the mlabelers disagree with the others.
-        '''
+        """
         dic = dict()
         agree = dict()
 
