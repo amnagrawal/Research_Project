@@ -114,7 +114,7 @@ class MetaphorIdentification:
         for index in range(len(self.annotatedTexts)):
             dic[index] = self.__findCandidates(cfinder_id, index)
             # self.findCandidates(identificationFunctionID, index)
-        print("self.candidates[{}] = {}".format(cfinder_id,dic))
+        print("self.candidates[{}] = {}".format(cfinder_id, dic))
         self.candidates[cfinder_id] = dic
 
     def labelAllMetaphors(self, mlabeler_id, cfinder_id, cand_type, verbose=False):
@@ -134,7 +134,6 @@ class MetaphorIdentification:
         All the candidate groups which corresponds to the different sentences are grouped into one big candidate group.
         The big metaphor groups that we get is then split in small metaphor groups which match the original small candidate groups
         """
-        dic = self.metaphors.get(mlabeler_id, dict())
 
         # 1: Create the big candidate group
         bigCandidateGroup = CandidateGroup()
