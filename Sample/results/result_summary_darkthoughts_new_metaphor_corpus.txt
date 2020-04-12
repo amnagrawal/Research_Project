@@ -1,12 +1,12 @@
 Labelled data: new_metaphor_corpus
 Method used: darkthoughts
 
-True Positives: 468
-False Positives: 6260
-True Negatives: 1777
-False Negatives: 1200
+True Positives: 1452
+False Positives: 9222
+True Negatives: 1584
+False Negatives: 349
 
-Accuracy: 0.23132405976300877
-Precision: 0.06956004756242569
-Recall: 0.2805755395683453
-F1 score: 0.11148165793234875
+Accuracy: 0.2408185928452447
+Precision: 0.13603147835862844
+Recall: 0.8062187673514714
+F1 score: 0.23278557114228454
