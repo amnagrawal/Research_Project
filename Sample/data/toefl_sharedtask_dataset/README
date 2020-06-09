@@ -1,0 +1,15 @@
+essays (directory):
+This contains 180 TOEFL essays in the training partition of the shared task.
+
+generate_offsets.py:
+Run this script to ensure that you do not get any errors. If you do, contact us immediately before proceeding. When you train your model to generate predictions, make sure that each instance is identified by a 3-tuple connected by underscore (essay_id, sentence_offset, token_offset) e.g. 218795_11_13 denotes 218795.txt's 11th sentence and 13th token, which is the word "specialization". We only evaluate using all content words i.e. nouns, verbs, adverbs, adjectives (all_pos), or using only verbs (verbs). You can cross reference the dictionary generated in this script with the ones in "toefl_skll_train_features.zip" to filter out the irrelevant tokens.
+
+promptid_essayid.lst:
+This contains pairs of (prompt_id, essay_id) where prompt_id is the TOEFL prompt being answered by the test-taker, while essay_id is the ID of the TOEFL essay written by the test-taker.
+
+prompt_texts (directory):
+This contains the 8 prompts that were used by the test-taker.
+
+metadata.csv
+This contains the metadata associated with each essay. Specifically, the "native_language" denotes the native language (Arabic, Italian, Japanese) of the test-taker who wrote the essay, while "proficiency" denotes the level of English mastery (medium, high) of the test-taker. 
+

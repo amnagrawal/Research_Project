@@ -1,0 +1,225 @@
+Darkthoughts:
+
+True Positives: 384
+False Positives: 3629
+True Negatives: 24402
+False Negatives: 1756
+Accuracy: 0.8215173510987372
+Precision: 0.09568901071517567
+Recall: 0.17943925233644858
+F1 score: 0.12481716235982447
+
+
+newCluster:
+True Positives: 4
+False Positives: 76
+True Negatives: 20586
+False Negatives: 2136
+Accuracy: 0.9029909657047628
+Precision: 0.05
+Recall: 0.001869158878504673
+F1 score: 0.0036036036036036037
+
+
+kMeans not able to run because of the following words: 
+Adj not found: illeterate
+Noun not found: prblems
+Noun not found: sucsessful
+Noun not found: cycleshop
+Noun not found: challengings
+Noun not found: succsess
+Adj not found: primay
+Adj not found: initelligent
+Noun not found: subjecet
+Adj not found: withot
+Noun not found: istituations
+Adj not found: ceariative
+Noun not found: coseptes
+Noun not found: socites
+Adj not found: cefeman
+Adj not found: brrelliant
+Adj not found: gerenal
+Noun not found: advanteges
+Adj not found: complicatied
+Noun not found: partern
+Adj not found: complecated
+Noun not found: funiture
+Adj not found: enogh
+Noun not found: thant
+Adj not found: privaite
+Noun not found: Singapre
+Noun not found: situatuation
+Noun not found: cheapter
+Noun not found: teory
+Adj not found: supecial
+Noun not found: peapole
+Noun not found: belows
+Adj not found: exiciting
+Adj not found: histrical
+Adj not found: differenet
+Adj not found: ruch
+Adj not found: exepensive
+Adj not found: econimical
+Adj not found: tipical
+Adj not found: relaiable
+Noun not found: chanal
+Adj not found: generalistic
+Adj not found: generalistic
+Adj not found: culural
+Noun not found: pourposes
+Adj not found: focalized
+Adj not found: diffent
+Noun not found: sorses
+Adj not found: 12-hour
+Adj not found: 12-hour
+Noun not found: thearies
+Adj not found: socil
+Adj not found: schocking
+Noun not found: democacy
+Noun not found: knowleadge
+Noun not found: manegers
+Noun not found: pepople
+Noun not found: pepople
+Noun not found: corelationship
+Adj not found: forigne
+Adj not found: torue
+Adj not found: comfetable
+Adj not found: comfetable
+Adj not found: basical
+Noun not found: tipes
+Adj not found: basical
+Adj not found: leass
+Adj not found: expectative
+Noun not found: fedelty
+Noun not found: factore
+Noun not found: factore
+Adj not found: bilological
+Adj not found: tecnological
+Noun not found: skillls
+Adj not found: psycholgical
+Noun not found: cltuers
+Noun not found: memorise
+Adj not found: torist
+Adj not found: tecnological
+Adj not found: tecnological
+Adj not found: pearsonal
+Adj not found: shoose
+Adj not found: 20th
+Adj not found: 17th-18th
+Adj not found: theyr
+Adj not found: heshe
+Adj not found: phisical
+Adj not found: failture
+Noun not found: Rakten
+Adj not found: prsonal
+Adj not found: launguge
+Noun not found: frinds
+Adj not found: interupting
+Noun not found: conditionars
+Adj not found: elementery
+Adj not found: horrorfy
+Noun not found: langage
+Noun not found: langrages
+Adj not found: withotut
+Noun not found: critisises
+Adj not found: somr
+Adj not found: exelent
+Noun not found: servecise
+Noun not found: facilitis
+Adj not found: acadimic
+Noun not found: dgree
+Adj not found: cambodian
+Adj not found: importan
+Adj not found: yhan
+Adj not found: succesesful
+Adj not found: mountenious
+Adj not found: boths
+Noun not found: socities
+Adj not found: untrustable
+Adj not found: unfamilitar
+Adj not found: entreprenourial
+Adj not found: uderstanding
+Adj not found: understaning
+Adj not found: theorical
+Adj not found: Theorical
+Adj not found: theorical
+Adj not found: theorical
+Noun not found: .g
+Noun not found: custemer
+Noun not found: creaters
+Noun not found: creaters
+Adj not found: fruitfull
+Adj not found: retributed
+Noun not found: knoledge
+Noun not found: knoledge
+Adj not found: menaingfull
+Adj not found: activeusefull
+Noun not found: perosn
+Adj not found: eightteen
+Adj not found: famouse
+Adj not found: nessessary
+Adj not found: specilaized
+Adj not found: nessessary
+Adj not found: specefic
+Adj not found: techological
+Noun not found: messege
+Adj not found: peronal
+Adj not found: nomal
+Adj not found: nesessarry
+Adj not found: knolege
+Adj not found: horizental
+Noun not found: appoximation
+Adj not found: Exellent
+Adj not found: fouty
+Adj not found: tecnical
+Adj not found: white-coloured
+Adj not found: sexteen
+Adj not found: successeful
+Adj not found: othere
+Adj not found: strainge
+Adj not found: ussual
+Adj not found: truks
+Noun not found: quistion
+Noun not found: actevity
+Adj not found: lettel
+Noun not found: faciliteis
+Noun not found: organaizitions
+Noun not found: lrd
+Adj not found: histrical
+Noun not found: cisrcustances
+Noun not found: qualfication
+Noun not found: experinece
+Noun not found: gide
+Noun not found: gide
+Noun not found: gide
+Adj not found: indivudual
+Noun not found: gude
+Noun not found: deseas
+Noun not found: sympthoms
+Noun not found: setuation
+Noun not found: sourse
+Noun not found: decesions
+Noun not found: transportaion
+Noun not found: smld
+Noun not found: knowkedge
+Noun not found: ISOLATION
+Adj not found: complexe
+Adj not found: absurde
+Noun not found: desiers
+Noun not found: bny
+Adj not found: simulataneous
+Adj not found: educatinal
+Noun not found: suject
+Adj not found: utopistic
+Adj not found: differrent
+Adj not found: 60-years-old
+Adj not found: 20-years-old
+Adj not found: alotof
+Noun not found: inventores
+Adj not found: incredibile
+Noun not found: knowldge
+Adj not found: spacified
+Noun not found: knowldege
+Noun not found: knowldge
+Noun not found: knowldge
+Noun not found: knowldge
