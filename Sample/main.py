@@ -2,6 +2,7 @@
 # Latest revision : 03/26/2019
 
 import time
+import sys
 
 # Metaphor labeling functions
 from Sample.modules.cluster_module import clusteringFunction, clusteringFunction_2

@@ -5,3 +5,4 @@ Sample/g_ngrams_main.py
 Sample/data/clustering/GoogleNews-vectors-negative300.bin
 metaphor_stratergies/
 .idea/
+__pycache__/

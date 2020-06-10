@@ -79,6 +79,11 @@ def getText(args):
         return extractText(args.file, args.cgenerator)
     elif args.string:
         return args.string, [], [], []
+    elif args.labelled_data:
+        data = pd.read_csv(args.labelled_data)
+        texts = list(data.text)
+        sources = list(data.metaphor)
+        return texts, sources, [], []
     else:
         return DEFAULT_TEXT, [], [], []
 
@@ -98,6 +103,7 @@ def parseCommandLine():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-f", "--file", type=str, help="look for metaphors in a text file")
     group.add_argument("-s", "--string", type=str, help="look for metaphors in a specified string")
+    group.add_argument("-ld", "--labelled_data", type=str, help="evaluate the performance on the labelled data")
     args = parser.parse_args()
 
     args.mlabelers = args.mlabelers.split(' ')

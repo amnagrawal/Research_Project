@@ -11,7 +11,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from .datastructs.metaphor_group import MetaphorGroup
 from .datastructs.metaphor import Metaphor
 
-
 VERBNET = "data/clustering/verbnet_150_50_200.log-preprocessed"
 NOUNS = "data/clustering/200_2000.log-preprocessed"
 TROFI_TAGS = "data/clustering/trofi_tags_full.csv"
@@ -19,6 +18,7 @@ TROFI_TAGS = "data/clustering/trofi_tags_full.csv"
 LABELED_VECTORS_PATH = "./data/clustering/DB/labeled_vectors/"
 UNLABELED_VECTORS_PATH = "./data/clustering/DB/unlabeled_vectors/"
 VECTORS_PATHS = {'labeledVectors': LABELED_VECTORS_PATH, 'unlabeledVectors': UNLABELED_VECTORS_PATH}
+
 
 # cluster2verb maps a cluster (integer) to a list of verbs
 def parseVerbClusterFile(file):
@@ -68,7 +68,7 @@ def parseNounClusterFile(file):
 
             cluster2noun[cluster] = content
 
-    return  cluster2noun
+    return cluster2noun
 
 
 # noun2cluster maps a noun to a cluster (integer)
@@ -149,10 +149,12 @@ def createLabelClustersDatastruct(DB):
 
     return cluster2label
 
+
 def getVector(DB, word):
     firstLetter = word[0]
     # return DB['vectors'][firstLetter].get(word, [])
     return DB['vectors'].get(firstLetter, dict()).get(word, list())
+
 
 def getWordCluster(word, DB, pos):
     if pos == 'verb':
@@ -163,6 +165,7 @@ def getWordCluster(word, DB, pos):
     wordCluster = DB[id].get(word, -1)
 
     return wordCluster
+
 
 def addWordToCluster(DB, word, pos):
     try:
@@ -196,13 +199,15 @@ def addWordToCluster(DB, word, pos):
 
         if len(similarWords) < 5:
             similarWords.append((otherWord, sim))
-            similarWords = sorted(similarWords, key= lambda x: x[1], reverse=True) # Sort by similarity in decreasing order
+            similarWords = sorted(similarWords, key=lambda x: x[1],
+                                  reverse=True)  # Sort by similarity in decreasing order
         else:
             minSim = similarWords[-1][1]
 
             if sim > minSim:
                 similarWords.append((otherWord, sim))
-                similarWords = sorted(similarWords, key=lambda x: x[1], reverse=True)[:5] # Keep only the five most similar
+                similarWords = sorted(similarWords, key=lambda x: x[1], reverse=True)[
+                               :5]  # Keep only the five most similar
 
     # 2
     clusters = [DB[id][sw[0]] for sw in similarWords]
@@ -214,6 +219,7 @@ def addWordToCluster(DB, word, pos):
     DB[id2][clusterID].append(word)
 
     return clusterID, DB
+
 
 def loadWordVectors(DB):
     DB['vectors'] = dict()
@@ -253,6 +259,7 @@ def buildDB():
 
     return DB
 
+
 # Above this line are the functions used to build the database used to label the metaphores
 # Run the file cluster_main.py to build the database
 # ---------------------------------------------------------------------------------------------------------------------------------------- #
@@ -265,6 +272,7 @@ def loadFile(filename):
     file.close()
     return data
 
+
 def loadDB():
     DB = dict()
 
@@ -276,6 +284,7 @@ def loadDB():
     DB = loadWordVectors(DB)
 
     return DB
+
 
 def getResult(sourceCluster, targetCluster, DB, count):
     pair = (sourceCluster, targetCluster)
@@ -331,12 +340,10 @@ def newClusterModule(candidates, cand_type, verbose):
                 # print(target, 'has no vector -> we cannot assign it to a cluster')
 
         result, count = getResult(sourceCluster, targetCluster, DB, count)
-        label = (result[0] == "N") # Assign True to label if Non-Literal, False otherwise
+        label = (result[0] == "N")  # Assign True to label if Non-Literal, False otherwise
         confidence = result[1]
 
         results.addMetaphor(Metaphor(c, label, confidence))
 
     print(count, '/', candidates.getSize())
     return results
-
-
