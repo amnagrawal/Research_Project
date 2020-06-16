@@ -2,7 +2,7 @@
 # Latest revision : 03/26/2019
 
 import time
-import sys
+import os
 
 # Metaphor labeling functions
 from Sample.modules.cluster_module import clusteringFunction, clusteringFunction_2
@@ -15,6 +15,7 @@ from Sample.modules.utils import parseCommandLine, getText
 # Data structures
 from Sample.modules.sample_functions import posFunction, lemmatizingFunction
 from Sample.modules.datastructs.metaphor_identification import MetaphorIdentification
+import pandas as pd
 
 if __name__ == "__main__":
 
@@ -73,7 +74,26 @@ if __name__ == "__main__":
     if args.csv:
         MI.resultsToCSV(args.csv)
 
-    # CK = MI.cohenKappa(args.mlabelers[0], args.mlabelers[1], candidatesID, cand_type, verbose=False, already_labeled=True)
-    # print("Cohen's Kappa:", CK)
+    # CK = MI.cohenKappa(args.mlabelers[0], args.mlabelers[1], candidatesID, cand_type, verbose=False,
+    #           already_labeled=True) print("Cohen's Kappa:", CK)
+
+    if args.labelled_data:
+        metaphors = []
+        for i, text in enumerate(texts):
+            metaphors_identified = []
+            for j in range(MI.getMetaphors(args.mlabelers[0])[i].getSize()):
+                temp = MI.getMetaphors(args.mlabelers[0])[i].getMetaphor(j).getPredictedLabel()
+                if temp:
+                    metaphors_identified.append(MI.getMetaphors(args.mlabelers[0])[i].getMetaphor(j).getSource())
+
+            metaphors.append(';'.join(metaphors_identified))
+
+        filename = args.mlabelers[0] + '_' + args.cfinder + '.txt'
+        save_dir = os.path.join(os.getcwd(), 'temp')
+        filename = os.path.join(save_dir, filename)
+        print(f"saving file at {filename}")
+        with open(filename, 'w') as f:
+            for metaphor in metaphors:
+                f.write('%s\n' % metaphor)
 
     print("--- %s seconds ---" % (time.time() - start_time))

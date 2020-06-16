@@ -15,10 +15,10 @@ N_ADJ_FILE = [2, 3, 4, 5]
 N_VERB_FILE = [2]
 FILE_TYPE = {"adjNoun": (ADJ_FILE, N_ADJ_FILE), "verbNoun": (VERB_FILE, N_VERB_FILE)}
 
-
-
-ADJ_FILES = [("data/darkthoughts/adjNoun/an2.txt", 2), ("data/darkthoughts/adjNoun/an3.txt", 3), ("data/darkthoughts/adjNoun/an4.txt", 4), ("data/darkthoughts/adjNoun/an5.txt", 5)]
-VERB_FILES = [("data/darkthoughts/verbNoun/vn2.txt", 2)] # This file is a filtered version of vn2_v1: it only keep the lines with frequency > 1000
+ADJ_FILES = [("data/darkthoughts/adjNoun/an2.txt", 2), ("data/darkthoughts/adjNoun/an3.txt", 3),
+             ("data/darkthoughts/adjNoun/an4.txt", 4), ("data/darkthoughts/adjNoun/an5.txt", 5)]
+VERB_FILES = [("data/darkthoughts/verbNoun/vn2.txt",
+               2)]  # This file is a filtered version of vn2_v1: it only keep the lines with frequency > 1000
 NGRAMS_FILES = {"adjNoun": ADJ_FILES, "verbNoun": VERB_FILES}
 
 POS = [{"adjNoun": "jj", "verbNoun": "v"}, {"adjNoun": "nn", "verbNoun": "n"}]
@@ -28,6 +28,7 @@ CAT_FILE = "data/categories.txt"
 TOP_SIZE = 60
 K = 30
 T = 10
+
 
 def darkthoughtsFunction(candidates, cand_type, verbose):
     # INITIALIZATIONS OF CLASSES AND DATA STRUCTURES
@@ -77,36 +78,36 @@ def darkthoughtsFunction(candidates, cand_type, verbose):
             print(categories.getCategoriesFromWord(target))
             print()
 
-
         ###### VERSION WITHOUT CONFIDENCE ######
-        #for cat in topCategories:
+        # for cat in topCategories:
         #	if categories.isWordInCat(target, cat):
         #		result = False
         #		break
         ########################################
 
-
-
         ###### VERSION WITH CONFIDENCE #####
         coef = 0.0
         intersection = 0.0
         ratio = 0.0
-        if (topCategories):
+        if topCategories:
             intersection = len(set(topCategories).intersection(categories.getCategoriesFromWord(target)))
-            ratio = intersection/len(topCategories)
-            if (ratio == 1.0):
+            ratio = intersection / len(topCategories)
+            if ratio == 1.0:
                 coef = 1.0
             else:
-                coef = 1-0.1/(0.1+ratio)
+                coef = 1 - 0.1 / (0.1 + ratio)
 
-        if (coef > 0.5):
+        if coef > 0.5:
             result = False
             confidence = coef
         else:
-            confidence = 1-coef
+            confidence = 1 - coef
 
         if verbose:
-            print("LENGTH OF THE INTERSECTION BETWEEN THE LIST OF CATEGORIES OF THE WORD AND THE LIST OF CATEGORIES CONTAINING THE MOST CONCRETE NOUNS: " + str(intersection))
+            print(
+                "LENGTH OF THE INTERSECTION BETWEEN THE LIST OF CATEGORIES OF THE WORD AND THE LIST OF CATEGORIES "
+                "CONTAINING THE MOST CONCRETE NOUNS: " + str(
+                    intersection))
             print("RATIO INTERSECTION/CONCRETE_CATEGORIES: " + str(ratio))
             print("CONFIDENCE: " + str(confidence))
             print()
@@ -122,7 +123,7 @@ def darkthoughtsFunction_2(candidates, cand_type, verbose):
     # INITIALIZATIONS OF CLASSES AND DATA STRUCTURES
     results = MetaphorGroup()
     collocations = CollocationList()
-    already_in = list() # list of first letters to see if data is already in cache
+    already_in = list()  # list of first letters to see if data is already in cache
 
     concrDict = parseConcreteness(CONCRETENESS_FILE)
     categories = parseCategories(CAT_FILE)
@@ -139,7 +140,8 @@ def darkthoughtsFunction_2(candidates, cand_type, verbose):
 
         first_letter = source[0]
         first_letter = first_letter.lower()
-        if first_letter not in already_in:
+        alphabets = [chr(ord('a')+i) for i in range(26)]    #isalpha doesn't work because it includes alphabetical characters from other languages too
+        if first_letter not in already_in and first_letter in alphabets:
             already_in.append(first_letter)
 
             length_ngram = FILE_TYPE[cand_type][1]
@@ -147,7 +149,6 @@ def darkthoughtsFunction_2(candidates, cand_type, verbose):
             for n in length_ngram:
                 filename = FILE_PREFIX + f + str(n) + '_' + first_letter + FILE_SUFFIX
                 parseNgrams(collocations, filename, n, POS[0][cand_type], POS[1][cand_type])
-
 
         # PART 1 OF ALGORITHM: GET THE NOUNS MOST FREQUENTLY MODIFIED BY SOURCE
         topModified = collocations.getMostFrequents(source, TOP_SIZE)
@@ -176,36 +177,36 @@ def darkthoughtsFunction_2(candidates, cand_type, verbose):
             print(categories.getCategoriesFromWord(target))
             print()
 
-
         ###### VERSION WITHOUT CONFIDENCE ######
-        #for cat in topCategories:
+        # for cat in topCategories:
         #	if categories.isWordInCat(target, cat):
         #		result = False
         #		break
         ########################################
 
-
-
         ###### VERSION WITH CONFIDENCE #####
         coef = 0.0
         intersection = 0.0
         ratio = 0.0
-        if (topCategories):
+        if topCategories:
             intersection = len(set(topCategories).intersection(categories.getCategoriesFromWord(target)))
-            ratio = intersection/len(topCategories)
-            if (ratio == 1.0):
+            ratio = intersection / len(topCategories)
+            if ratio == 1.0:
                 coef = 1.0
             else:
-                coef = 1-0.1/(0.1+ratio)
+                coef = 1 - 0.1 / (0.1 + ratio)
 
         if (coef > 0.5):
             result = False
             confidence = coef
         else:
-            confidence = 1-coef
+            confidence = 1 - coef
 
         if verbose:
-            print("LENGTH OF THE INTERSECTION BETWEEN THE LIST OF CATEGORIES OF THE WORD AND THE LIST OF CATEGORIES CONTAINING THE MOST CONCRETE NOUNS: " + str(intersection))
+            print(
+                "LENGTH OF THE INTERSECTION BETWEEN THE LIST OF CATEGORIES OF THE WORD AND THE LIST OF CATEGORIES "
+                "CONTAINING THE MOST CONCRETE NOUNS: " + str(
+                    intersection))
             print("RATIO INTERSECTION/CONCRETE_CATEGORIES: " + str(ratio))
             print("CONFIDENCE: " + str(confidence))
             print()

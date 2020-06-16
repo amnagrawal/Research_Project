@@ -6,3 +6,4 @@ Sample/data/clustering/GoogleNews-vectors-negative300.bin
 metaphor_stratergies/
 .idea/
 __pycache__/
+word_counts*

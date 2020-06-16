@@ -82,7 +82,7 @@ def getText(args):
     elif args.labelled_data:
         data = pd.read_csv(args.labelled_data)
         texts = list(data.text)
-        sources = list(data.metaphor)
+        sources = list(data.source)
         return texts, sources, [], []
     else:
         return DEFAULT_TEXT, [], [], []

@@ -8,10 +8,6 @@ from gensim.models import KeyedVectors
 from scipy.spatial import distance
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from scipy.spatial import distance
-from Sample.modules.datastructs.metaphor import Metaphor
-from Sample.modules.datastructs.metaphor_group import MetaphorGroup
-from Sample.utils import timeit
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
@@ -59,18 +55,42 @@ def vectorize_data(df):
         a = j[0]
         n = j[1]
         l = []
-        if '-' in a:
-            s = a.split('-')
-            ar_Adj = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
-        else:
-            ar_Adj = float(abstractness_rating_dict[a])
-        if '-' in n:
-            s = n.split('-')
-            ar_Noun = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
-        else:
-            ar_Noun = float(abstractness_rating_dict[n])
-        l.append((ar_Adj) / 10)
-        l.append((ar_Noun) / 10)
+        # Editing this to get rid of key-errors in abstractness_rating_dict
+        # if '-' in a:
+        #     s = a.split('-')
+        #     ar_Adj = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
+        # else:
+        #     ar_Adj = float(abstractness_rating_dict[a])
+        # if '-' in n:
+        #     s = n.split('-')
+        #     ar_Noun = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
+        # else:
+        #     ar_Noun = float(abstractness_rating_dict[n])
+
+        try:
+            if '-' in a:
+                s = a.split('-')
+                ar_Adj = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
+            else:
+                ar_Adj = float(abstractness_rating_dict[a])
+
+        except:
+            ar_Adj = 0
+            print(f"Adj not found {a}")
+
+        try:
+            if '-' in n:
+                s = n.split('-')
+                ar_Noun = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
+            else:
+                ar_Noun = float(abstractness_rating_dict[n])
+
+        except:
+            ar_Noun = 0
+            print(f"Noun not found {n}")
+
+        l.append(ar_Adj / 10)
+        l.append(ar_Noun / 10)
         l.append((np.sign(ar_Adj - ar_Noun)))
         s = model.similarity(j[0], j[1])
         l.append(s)
@@ -81,6 +101,9 @@ def vectorize_data(df):
     an_vectorized = np.asarray(an_vectorized)
     return an_vectorized
 
+
+'''
+Note from Aman: This function seems to be a duplicate of the function above
 
 def vectorize_data_abstractness(df):
     an_vectorized = []
@@ -103,16 +126,18 @@ def vectorize_data_abstractness(df):
             ar_Noun = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
         else:
             ar_Noun = float(abstractness_rating_dict[n])
-        l.append((ar_Adj) / 10)
-        l.append((ar_Noun) / 10)
+        l.append(ar_Adj / 10)
+        l.append(ar_Noun / 10)
         l.append((np.sign(ar_Adj - ar_Noun)))
 
         an_vectorized.append(list(l))
 
     an_vectorized = np.asarray(an_vectorized)
     return an_vectorized
+'''
 
-
+'''
+Note from Aman: This function is a duplicate of function vectorize_data
 def vectorize_data_abstractness_cosine(df):
     an_vectorized = []
 
@@ -134,8 +159,8 @@ def vectorize_data_abstractness_cosine(df):
             ar_Noun = (float(abstractness_rating_dict[s[0]]) + float(abstractness_rating_dict[s[1]])) / 2
         else:
             ar_Noun = float(abstractness_rating_dict[n])
-        l.append((ar_Adj) / 10)
-        l.append((ar_Noun) / 10)
+        l.append(ar_Adj / 10)
+        l.append(ar_Noun / 10)
         l.append((np.sign(ar_Adj - ar_Noun)))
         s = model.similarity(j[0], j[1])
         l.append(s)
@@ -144,6 +169,7 @@ def vectorize_data_abstractness_cosine(df):
 
     an_vectorized = np.asarray(an_vectorized)
     return an_vectorized
+'''
 
 
 def get_adj_noun_class(df, adjective, noun):
@@ -246,14 +272,14 @@ def get_confidence(an_vectorized, kmeans_clustering, test_data_coordinates, pred
             center_distance_other_cluster = distance.euclidean(centroid_list[1], test_data_coordinate_list[i])
 
             confidence_dict[i] = 1 - (
-                    (data_point_center_distance) / (data_point_center_distance + center_distance_other_cluster))
+                    data_point_center_distance / (data_point_center_distance + center_distance_other_cluster))
 
         elif predicted_label_list[i] == 1:
             data_point_center_distance = distance.euclidean(centroid_list[1], test_data_coordinate_list[i])
             center_distance_other_cluster = distance.euclidean(centroid_list[0], test_data_coordinate_list[i])
 
             confidence_dict[i] = 1 - (
-                    (data_point_center_distance) / (data_point_center_distance + center_distance_other_cluster))
+                    data_point_center_distance / (data_point_center_distance + center_distance_other_cluster))
 
     return confidence_dict
 
@@ -281,11 +307,11 @@ def identify_metaphors_abstractness_cosine_edit_dist(candidates, cand_type, verb
     fields = ['adj', 'noun']
     MET_AN_EN_TEST = pd.read_excel(
         './data/Datasets_ACL2014.xlsx',
-        sheetname='MET_AN_EN', usecols=fields)
+        sheet_name='MET_AN_EN', usecols=fields)
     MET_AN_EN_TEST['class'] = 1
     LIT_AN_EN_TEST = pd.read_excel(
         './data/Datasets_ACL2014.xlsx',
-        sheetname='LIT_AN_EN', usecols=fields)
+        sheet_name='LIT_AN_EN', usecols=fields)
     LIT_AN_EN_TEST['class'] = 0
 
     df = pd.concat([LIT_AN_EN, MET_AN_EN, MET_AN_EN_TEST, LIT_AN_EN_TEST])
