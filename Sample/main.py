@@ -87,7 +87,8 @@ if __name__ == "__main__":
 
             metaphors.append(';'.join(metaphors_identified))
 
-        filename = args.mlabelers[0] + '_' + args.cfinder + '.txt'
+        ld_filename = args.labelled_data.split('/')[-1][:-4]
+        filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '.txt'
         save_dir = os.path.join(os.getcwd(), 'temp')
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)

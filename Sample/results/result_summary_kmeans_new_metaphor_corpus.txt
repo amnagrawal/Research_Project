@@ -1,4 +1,4 @@
-Labelled data: new_metaphor_corpus.csv
+Labelled data: new_metaphor_corpus
 Method used: kmeans
 
 True Positives: 34

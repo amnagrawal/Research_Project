@@ -9,7 +9,8 @@ args = parseCommandLine()
 texts, sources, targets, labels = getText(args)
 
 metaphors = []
-filename = args.mlabelers[0] + '_' + 'adjNoun.txt'
+ld_filename = args.labelled_data.split('/')[-1][:-4]
+filename = args.mlabelers[0] + '_adjNoun_' + ld_filename + '.txt'
 read_dir = os.path.join(os.getcwd(), 'temp')
 
 if not os.path.isdir(read_dir):
@@ -20,7 +21,7 @@ with open(os.path.join(read_dir, filename), 'r') as f:
     metaphors_adjNoun = f.readlines()
 
 if args.mlabelers[0] != 'kmeans':
-    filename = args.mlabelers[0] + '_' + 'verbNoun.txt'
+    filename = args.mlabelers[0] + '_' + 'verbNoun' + ld_filename + '.txt'
     read_dir = os.path.join(os.getcwd(), 'temp')
     with open(os.path.join(read_dir, filename), 'r') as f:
         metaphors_verbNoun = f.readlines()
@@ -134,16 +135,15 @@ print(f'Recall: {recall}')
 print(f'F1 score: {f1_score}')
 
 word_counts.set_index('token', inplace=True)
-ld_filename = args.labelled_data.split('/')[-1]
 save_dir = os.path.join(os.getcwd(), 'results')
 
 if not os.path.isdir(save_dir):
     os.mkdir(save_dir)
 
-word_count_file = 'word_counts_' + args.mlabelers[0] + '_' + ld_filename
+word_count_file = 'word_counts_' + args.mlabelers[0] + '_' + ld_filename + '.csv'
 word_counts.to_csv(os.path.join(save_dir, word_count_file), header=True)
 
-result_summary_file = 'result_summary_' + args.mlabelers[0] + '_' + ld_filename
+result_summary_file = 'result_summary_' + args.mlabelers[0] + '_' + ld_filename + '.txt'
 with open(os.path.join(save_dir, result_summary_file), 'w') as f:
     f.write(f'Labelled data: {ld_filename}\n')
     f.write(f'Method used: {args.mlabelers[0]}\n\n')
