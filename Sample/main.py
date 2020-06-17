@@ -1,21 +1,20 @@
 # Author : Thomas Buffagni
 # Latest revision : 03/26/2019
 
-import time
 import os
+import time
 
 # Metaphor labeling functions
-from Sample.modules.cluster_module import clusteringFunction, clusteringFunction_2
-from Sample.modules.darkthoughts import darkthoughtsFunction, darkthoughtsFunction_2
-from Sample.modules.new_cluster_module import newClusterModule
+from Sample.modules.cluster_module import clusteringFunction_2
+from Sample.modules.darkthoughts import darkthoughtsFunction_2
+from Sample.modules.datastructs.metaphor_identification import MetaphorIdentification
 from Sample.modules.kmeans_abs_ratings_cosine_edit_distance import identify_metaphors_abstractness_cosine_edit_dist
+from Sample.modules.new_cluster_module import newClusterModule
+# Data structures
+from Sample.modules.sample_functions import posFunction, lemmatizingFunction
 # Candidate finding functions
 from Sample.modules.sample_functions import verbNounFinder, adjNounFinder
 from Sample.modules.utils import parseCommandLine, getText
-# Data structures
-from Sample.modules.sample_functions import posFunction, lemmatizingFunction
-from Sample.modules.datastructs.metaphor_identification import MetaphorIdentification
-import pandas as pd
 
 if __name__ == "__main__":
 
@@ -90,6 +89,9 @@ if __name__ == "__main__":
 
         filename = args.mlabelers[0] + '_' + args.cfinder + '.txt'
         save_dir = os.path.join(os.getcwd(), 'temp')
+        if not os.path.isdir(save_dir):
+            os.mkdir(save_dir)
+
         filename = os.path.join(save_dir, filename)
         print(f"saving file at {filename}")
         with open(filename, 'w') as f:

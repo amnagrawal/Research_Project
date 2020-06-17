@@ -1,0 +1,10 @@
+Labelled data: new_metaphor_corpus.csv
+Method used: kmeans
+
+True Positives: 34
+False Positives: 1683
+False Negatives: 946
+
+Precision: 0.019801980198019802
+Recall: 0.03469387755102041
+F1 score: 0.025213199851687056

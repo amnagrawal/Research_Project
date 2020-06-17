@@ -1,23 +1,28 @@
-import pandas as pd
 import os
+import sys
+
+import pandas as pd
+
 from Sample.modules.utils import parseCommandLine, getText
 
 args = parseCommandLine()
 texts, sources, targets, labels = getText(args)
 
 metaphors = []
-metaphors_adjNoun = []
 filename = args.mlabelers[0] + '_' + 'adjNoun.txt'
 read_dir = os.path.join(os.getcwd(), 'temp')
-filename = os.path.join(read_dir, filename)
-with open(filename, 'r') as f:
+
+if not os.path.isdir(read_dir):
+    print("Read directory not found: Run the main file for labelled data first")
+    sys.exit(-1)
+
+with open(os.path.join(read_dir, filename), 'r') as f:
     metaphors_adjNoun = f.readlines()
 
 if args.mlabelers[0] != 'kmeans':
     filename = args.mlabelers[0] + '_' + 'verbNoun.txt'
     read_dir = os.path.join(os.getcwd(), 'temp')
-    filename = os.path.join(read_dir, filename)
-    with open(filename, 'r') as f:
+    with open(os.path.join(read_dir, filename), 'r') as f:
         metaphors_verbNoun = f.readlines()
 
     for i in range(len(metaphors_verbNoun)):
@@ -40,7 +45,6 @@ for i in range(len(sources)):
     true_metaphors.append(str(sources[i]).split(';'))
 token_set = set()
 
-
 for i, row in enumerate(metaphors):
     if len(row):
         metaphors_identified = row.split(';')
@@ -52,12 +56,12 @@ for i, row in enumerate(metaphors):
                     true_positive_cases[token] += 1
                 else:
                     true_positive_cases[token] = 1
-                    # print(token)
             else:
                 if token in false_positive_cases.keys():
                     false_positive_cases[token] += 1
                 else:
                     false_positive_cases[token] = 1
+                    print(token)
 
         for token in true_metaphors[i]:
             token_set.update([token])
@@ -131,5 +135,23 @@ print(f'F1 score: {f1_score}')
 
 word_counts.set_index('token', inplace=True)
 ld_filename = args.labelled_data.split('/')[-1]
-output_file = 'word_counts_' + args.mlabelers[0] + '_' + ld_filename
-word_counts.to_csv(os.path.join(os.getcwd(), output_file), header=True)
+save_dir = os.path.join(os.getcwd(), 'results')
+
+if not os.path.isdir(save_dir):
+    os.mkdir(save_dir)
+
+word_count_file = 'word_counts_' + args.mlabelers[0] + '_' + ld_filename
+word_counts.to_csv(os.path.join(save_dir, word_count_file), header=True)
+
+result_summary_file = 'result_summary_' + args.mlabelers[0] + '_' + ld_filename
+with open(os.path.join(save_dir, result_summary_file), 'w') as f:
+    f.write(f'Labelled data: {ld_filename}\n')
+    f.write(f'Method used: {args.mlabelers[0]}\n\n')
+    f.write(f'True Positives: {total_tp}\n')
+    f.write(f'False Positives: {total_fp}\n')
+    # f.write(f'True Negatives: {total_tn}\n')
+    f.write(f'False Negatives: {total_fn}\n\n')
+    # f.write(f'Accuracy: {accuracy}\n')
+    f.write(f'Precision: {precision}\n')
+    f.write(f'Recall: {recall}\n')
+    f.write(f'F1 score: {f1_score}\n')
