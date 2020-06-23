@@ -1,0 +1,12 @@
+Labelled data: essays
+Method used: newCluster
+
+True Positives: 16
+False Positives: 226
+True Negatives: 10479
+False Negatives: 1118
+
+Accuracy: 0.8864768983866881
+Precision: 0.06611570247933884
+Recall: 0.014109347442680775
+F1 score: 0.023255813953488372

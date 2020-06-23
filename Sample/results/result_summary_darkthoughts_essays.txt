@@ -1,0 +1,12 @@
+Labelled data: essays
+Method used: darkthoughts
+
+True Positives: 694
+False Positives: 8215
+True Negatives: 2648
+False Negatives: 2839
+
+Accuracy: 0.23214781883856628
+Precision: 0.07789875406891907
+Recall: 0.196433625813756
+F1 score: 0.11155762739109468

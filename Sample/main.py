@@ -78,25 +78,41 @@ if __name__ == "__main__":
 
     if args.labelled_data:
         metaphors = []
+        metaphor_targets = []
+        non_metaphors = []
+        non_metaphor_targets = []
         for i, text in enumerate(texts):
-            metaphors_identified = []
+            metaphors_in_row = []
+            meta_targets_in_row = []
+            non_metaphors_in_row = []
+            non_meta_targets_in_row = []
             for j in range(MI.getMetaphors(args.mlabelers[0])[i].getSize()):
-                temp = MI.getMetaphors(args.mlabelers[0])[i].getMetaphor(j).getPredictedLabel()
-                if temp:
-                    metaphors_identified.append(MI.getMetaphors(args.mlabelers[0])[i].getMetaphor(j).getSource())
+                candidate = MI.getMetaphors(args.mlabelers[0])[i].getMetaphor(j)
+                if candidate.getPredictedLabel():
+                    metaphors_in_row.append(candidate.getSource())
+                    meta_targets_in_row.append(candidate.getTarget())
+                else:
+                    non_metaphors_in_row.append(candidate.getSource())
+                    non_meta_targets_in_row.append(candidate.getTarget())
 
-            metaphors.append(';'.join(metaphors_identified))
+            metaphors.append(';'.join(metaphors_in_row))
+            non_metaphors.append(';'.join(non_metaphors_in_row))
+            metaphor_targets.append(';'.join(meta_targets_in_row))
+            non_metaphor_targets.append(';'.join(non_meta_targets_in_row))
 
         ld_filename = args.labelled_data.split('/')[-1][:-4]
-        filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '.txt'
+        metaphors_filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '_metaphors.txt'
+        non_metaphors_filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '_nonmetaphors.txt'
         save_dir = os.path.join(os.getcwd(), 'temp')
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)
 
-        filename = os.path.join(save_dir, filename)
-        print(f"saving file at {filename}")
-        with open(filename, 'w') as f:
-            for metaphor in metaphors:
-                f.write('%s\n' % metaphor)
+        with open(os.path.join(save_dir, metaphors_filename), 'w') as f:
+            for i, metaphor in enumerate(metaphors):
+                f.write('%s,%s\n' % (metaphor, metaphor_targets[i]))
+
+        with open(os.path.join(save_dir, non_metaphors_filename), 'w') as f:
+            for i, non_metaphor in enumerate(non_metaphors):
+                f.write('%s,%s\n' % (non_metaphor, non_metaphor_targets[i]))
 
     print("--- %s seconds ---" % (time.time() - start_time))

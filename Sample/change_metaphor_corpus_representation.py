@@ -6,7 +6,7 @@ from textblob import TextBlob
 
 DATA_PATH = "/home/aman/IITC/Research_Project/Sample/data"
 
-data = pd.read_csv(os.path.join(DATA_PATH, 'metaphor-corpus.csv'))
+data = pd.read_excel(os.path.join(DATA_PATH, 'corpus1.xlsx'))
 header = ['text', 'source', 'offset']
 df = pd.DataFrame(columns=header)
 # df.text = data.Sentence
@@ -17,8 +17,8 @@ df = pd.DataFrame(columns=header)
 abstractness_rating_dict = get_abstractness_rating()
 
 for index, row in data.iterrows():
-    source = row['Source LM']
-    text = row['Sentence']
+    source = row['Source']
+    text = row['sentence']
     tokens = text.split(' ')
 
     offset = 0
@@ -33,4 +33,4 @@ for index, row in data.iterrows():
     row = [new_text, source, offset]
     df = df.append(pd.DataFrame([row], columns=header), ignore_index=True)
 
-df.to_csv(os.path.join(DATA_PATH, 'new_metaphor_corpus.csv'))
+df.to_csv(os.path.join(DATA_PATH, 'new_corpus.csv'))

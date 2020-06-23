@@ -1,0 +1,12 @@
+Labelled data: essays
+Method used: kmeans
+
+True Positives: 110
+False Positives: 2137
+True Negatives: 520
+False Negatives: 2097
+
+Accuracy: 0.12952302631578946
+Precision: 0.04895416110369381
+Recall: 0.04984141368373358
+F1 score: 0.04939380332285585

@@ -9,63 +9,70 @@ args = parseCommandLine()
 texts, sources, targets, labels = getText(args)
 
 ld_filename = args.labelled_data.split('/')[-1][:-4]
-# metaphors_filename = args.mlabelers[0] + '_adjNoun_' + ld_filename + '_metaphors.txt'
-# non_metaphors_filename = args.mlabelers[0] + '_adjNoun_' + ld_filename + '_nonmetaphors.txt'
 read_dir = os.path.join(os.getcwd(), 'temp')
-if not os.path.isdir(read_dir):
-    print("Read directory not found: Run the main file for labelled data first")
-    sys.exit(-1)
+
+metaphor_files = [os.path.join(read_dir, 'kmeans_') + ld_filename + '_metaphors.txt',
+                  os.path.join(read_dir, 'darkthoughts_') + ld_filename + '_metaphors.txt',
+                  os.path.join(read_dir, 'newCluster_') + ld_filename + '_metaphors.txt']
+
+non_metaphor_files = [os.path.join(read_dir, 'kmeans_') + ld_filename + '_nonmetaphors.txt',
+                  os.path.join(read_dir, 'darkthoughts_') + ld_filename + '_nonmetaphors.txt',
+                  os.path.join(read_dir, 'newCluster_') + ld_filename + '_nonmetaphors.txt']
 
 
-def get_data(class_type='metaphors'):
-    data = []
-    filename = args.mlabelers[0] + '_adjNoun_' + ld_filename
-    if class_type == 'metaphors':
-        filename += '_metaphors.txt'
-    else:
-        filename += '_nonmetaphors.txt'
-
-    with open(os.path.join(read_dir, filename), 'r') as f:
-        metaphors_adjNoun = f.readlines()
-
-    if args.mlabelers[0] != 'kmeans':
-        filename = args.mlabelers[0] + '_verbNoun_' + ld_filename
-        if class_type == 'metaphors':
-            filename += '_metaphors.txt'
-        else:
-            filename += '_nonmetaphors.txt'
-
-        with open(os.path.join(read_dir, filename), 'r') as f:
-            metaphors_verbNoun = f.readlines()
-
-        for i in range(len(metaphors_verbNoun)):
-            metaphors_adjNoun[i] = metaphors_adjNoun[i].strip().split(',')[0]
-            metaphors_verbNoun[i] = metaphors_verbNoun[i].strip().split(',')[0]
-            list_item = metaphors_verbNoun[i] + ';' + metaphors_adjNoun[i]
-            list_item = list_item.strip(';')
-            data.append(list_item)
-
-    else:
-        for i in range(len(metaphors_adjNoun)):
-            metaphors_adjNoun[i] = metaphors_adjNoun[i].strip().split(',')[0]
-            data.append(metaphors_adjNoun[i])
-
-    save_file = args.mlabelers[0] + '_' + ld_filename
-    if class_type == 'metaphors':
-        save_file += '_metaphors.txt'
-    else:
-        save_file += '_nonmetaphors.txt'
-
-    with open(os.path.join(read_dir, save_file), 'w') as f:
-        for row in data:
-            f.write(row + '\n')
-
+def readFile(path):
+    with open(path, 'r') as f:
+        data = f.readlines()
     return data
 
 
-metaphors = get_data('metaphors')
-non_metaphors = get_data('non_metaphors')
+def voting(list1, list2, list3):
+    token_set = set()
+    for item in list1:
+        if len(item):
+            token_set.update([item])
 
+    for item in list2:
+        if len(item):
+            token_set.update([item])
+
+    for item in list3:
+        if len(item):
+            token_set.update([item])
+
+    results = []
+    for token in token_set:
+        count = 0
+        if token in list1:
+            count += 1
+        if token in list2:
+            count += 1
+        if token in list3:
+            count += 1
+
+        if count > 0:
+            # print(token)
+            results.append(token)
+
+    return results
+
+
+def get_data(files):
+    data = []
+    file1 = readFile(files[0])
+    file2 = readFile(files[1])
+    file3 = readFile(files[2])
+
+    for i, row in enumerate(file1):
+        temp = voting(file1[i].strip().split(';'),
+                      file2[i].strip().split(';'),
+                      file3[i].strip().split(';'))
+        data.append(';'.join(temp))
+    return data
+
+
+metaphors = get_data(metaphor_files)
+non_metaphors = get_data(non_metaphor_files)
 false_positive_cases = {}
 true_positive_cases = {}
 false_negative_cases = {}
@@ -134,14 +141,14 @@ for token in token_set:
     if token in true_positive_cases.keys():
         tp = true_positive_cases[token]
 
+    if token in true_negative_cases.keys():
+        tn = true_negative_cases[token]
+
     if token in false_positive_cases.keys():
         fp = false_positive_cases[token]
 
     if token in false_negative_cases.keys():
         fn = false_negative_cases[token]
-
-    if token in true_negative_cases.keys():
-        tn = true_negative_cases[token]
 
     total = tp + tn + fp + fn
     if tp + fp:
