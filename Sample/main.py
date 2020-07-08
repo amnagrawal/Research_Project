@@ -1,5 +1,6 @@
 # Author : Thomas Buffagni
-# Latest revision : 03/26/2019
+# currently maintained by: Aman Agrawal
+# Latest revision : 06/24/2020
 
 import os
 import time
@@ -13,7 +14,7 @@ from Sample.modules.new_cluster_module import newClusterModule
 # Data structures
 from Sample.modules.sample_functions import posFunction, lemmatizingFunction
 # Candidate finding functions
-from Sample.modules.sample_functions import verbNounFinder, adjNounFinder
+from Sample.modules.sample_functions import verbNounFinder, adjNounFinder, nounNounFinder
 from Sample.modules.utils import parseCommandLine, getText
 
 if __name__ == "__main__":
@@ -28,6 +29,7 @@ if __name__ == "__main__":
     # Registering the Candidate Finders and the Metaphor Labelers
     MI.addCFinder("verbNoun", verbNounFinder)
     MI.addCFinder("adjNoun", adjNounFinder)
+    MI.addCFinder("nounNoun", nounNounFinder)
     MI.addMLabeler("darkthoughts", darkthoughtsFunction_2)
     MI.addMLabeler("cluster", clusteringFunction_2)
     MI.addMLabeler('newCluster', newClusterModule)
@@ -95,6 +97,17 @@ if __name__ == "__main__":
                     non_metaphors_in_row.append(candidate.getSource())
                     non_meta_targets_in_row.append(candidate.getTarget())
 
+            # temp code: uncomment to print candidates in a file instead of identified metaphors
+            # TODO: Delete this code block
+            # if cand_type == 'nounNoun':
+            #     metaphors_in_row = []
+            #     meta_targets_in_row = []
+            #     for j in range(MI.getCandidates('nounNoun')[i].getSize()):
+            #         candidate = MI.getCandidates('nounNoun')[i].getCandidate(j)
+            #         metaphors_in_row.append(candidate.getSource())
+            #         meta_targets_in_row.append(candidate.getTarget())
+            # temp code ends
+
             metaphors.append(';'.join(metaphors_in_row))
             non_metaphors.append(';'.join(non_metaphors_in_row))
             metaphor_targets.append(';'.join(meta_targets_in_row))
@@ -109,10 +122,16 @@ if __name__ == "__main__":
 
         with open(os.path.join(save_dir, metaphors_filename), 'w') as f:
             for i, metaphor in enumerate(metaphors):
-                f.write('%s,%s\n' % (metaphor, metaphor_targets[i]))
+                if len(targets):
+                    f.write('%s,%s,%s,%s,\"%s\"\n' % (metaphor, metaphor_targets[i], sources[i], targets[i], texts[i]))
+                else:
+                    f.write('%s,%s,%s,\"%s\"\n' % (metaphor, metaphor_targets[i], sources[i], texts[i]))
 
         with open(os.path.join(save_dir, non_metaphors_filename), 'w') as f:
             for i, non_metaphor in enumerate(non_metaphors):
-                f.write('%s,%s\n' % (non_metaphor, non_metaphor_targets[i]))
+                if len(targets):
+                    f.write('%s,%s,%s,%s,\"%s\"\n' % (non_metaphor, non_metaphor_targets[i], sources[i], targets[i], texts[i]))
+                else:
+                    f.write('%s,%s,%s,\"%s\"\n' % (non_metaphor, non_metaphor_targets[i], sources[i], texts[i]))
 
     print("--- %s seconds ---" % (time.time() - start_time))

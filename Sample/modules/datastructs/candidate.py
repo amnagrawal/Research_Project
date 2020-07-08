@@ -3,13 +3,13 @@ from .annotated_text import AnnotatedText
 class Candidate:
 
 	def __init__(self, annotatedText, sourceIndex, sourceSpan, targetIndex, targetSpan, label=None):
-		if (not(isinstance(sourceIndex, int))):
+		if not(isinstance(sourceIndex, int)):
 			raise ValueError('Argument sourceIndex not an int.')
-		if (not(isinstance(sourceSpan, tuple))):
+		if not(isinstance(sourceSpan, tuple)):
 			raise ValueError('Argument sourceSpan not a tuple.')
-		if (not(isinstance(targetIndex, int))):
+		if not(isinstance(targetIndex, int)):
 			raise ValueError('Argument targetIndex not an int.')
-		if (not(isinstance(targetSpan, tuple))):
+		if not(isinstance(targetSpan, tuple)):
 			raise ValueError('Argument targetSpan not a tuple.')
 		self.annotatedText = annotatedText
 		self.sourceIndex = sourceIndex

@@ -24,7 +24,6 @@ def getWordnetPos(tag):
 # Use NLTK pos_tag function
 def posFunction(annotatedText):
     finalPos = []
-    sentence = []
     if annotatedText.isColumnPresent("word"):
         sentence = annotatedText.getColumn("word")
     else:
@@ -52,7 +51,7 @@ def lemmatizingFunction(annotatedText):
 
     for i in range(len(sentence)):
         curentTag = getWordnetPos(posTags[i])
-        if (curentTag):
+        if curentTag:
             finalLem.append(lemm.lemmatize(sentence[i], curentTag))
         else:
             finalLem.append(lemm.lemmatize(sentence[i]))
@@ -78,16 +77,52 @@ def adjNounFinder(annotatedText):
             currentAdjIndex = i
             currentNounIndex = i + 1
             #			print("Creating candidate...")
-            while (currentNounIndex < len(POScolumn) and POScolumn[currentNounIndex].startswith('NN')):
+            while currentNounIndex < len(POScolumn) and POScolumn[currentNounIndex].startswith('NN'):
                 currentNounIndex += 1
             #			print("Creating candidate for {} -- {}".format(i,currentNounIndex))
-            while (currentAdjIndex >= 0 and POScolumn[currentAdjIndex] == 'JJ'):
+            while currentAdjIndex >= 0 and POScolumn[currentAdjIndex] == 'JJ':
                 newCandidate = Candidate(annotatedText, currentAdjIndex, (currentAdjIndex, currentAdjIndex),
                                          currentNounIndex - 1, (i + 1, currentNounIndex - 1))
                 candidates.addCandidate(newCandidate)
                 #				print("New Candidate {}".format(newCandidate))
                 currentAdjIndex -= 1
     #	print(candidates)
+    return candidates
+
+
+def nounNounFinder(annotatedText):
+    candidates = CandidateGroup()
+    POScolumn = annotatedText.getColumn("POS")
+    wordColumn = annotatedText.getColumn("word")
+    pattern = ['of', 'is', 'was', 'were', 'am', 'had', 'will', 'are', 'have']
+    # pattern = ['of']
+    ignore_in_pattern = ['a', 'an', 'the']
+    ignore_in_pattern.extend(pattern)
+    for i in range(len(POScolumn) - 1):
+        if POScolumn[i].startswith('NN') and (wordColumn[i + 1] in pattern):
+            sourceNounIndex = i
+            targetNounIndex = i + 1
+            candidateFound = False
+            condition1 = lambda x: (x < len(POScolumn)) and POScolumn[x].startswith('NN')
+            condition2 = lambda x: (x < len(wordColumn)) and wordColumn[x] in ignore_in_pattern
+            condition3 = lambda x: (x < len(POScolumn)) and POScolumn[x] == 'JJ'
+            condition = lambda x: condition1(x) or condition2(x) or condition3(x)
+            while condition(targetNounIndex):
+                if condition(targetNounIndex) and not condition(targetNounIndex + 1):
+                    if condition1(targetNounIndex):
+                        candidateFound = True
+                        break
+                targetNounIndex += 1
+
+            if candidateFound:
+                if 'of' in wordColumn[sourceNounIndex:targetNounIndex+1]:
+                    newCandidate = Candidate(annotatedText, sourceNounIndex, (sourceNounIndex, sourceNounIndex),
+                                         targetNounIndex, (targetNounIndex, targetNounIndex))
+                else:
+                    newCandidate = Candidate(annotatedText, targetNounIndex, (targetNounIndex, targetNounIndex),
+                                             sourceNounIndex, (sourceNounIndex, sourceNounIndex))
+                candidates.addCandidate(newCandidate)
+
     return candidates
 
 

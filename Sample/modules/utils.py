@@ -83,7 +83,11 @@ def getText(args):
         data = pd.read_csv(args.labelled_data)
         texts = list(data.text)
         sources = list(data.source)
-        return texts, sources, [], []
+        try:
+            targets = list(data.target)
+            return texts, sources, targets, []
+        except:
+            return texts, sources, [], []
     else:
         return DEFAULT_TEXT, [], [], []
 

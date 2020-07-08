@@ -1,0 +1,12 @@
+Labelled data: new_metaphor_corpus
+Method used: newCluster
+
+True Positives: 64
+False Positives: 186
+True Negatives: 7738
+False Negatives: 575
+
+Accuracy: 0.9111292771225038
+Precision: 0.256
+Recall: 0.10015649452269171
+F1 score: 0.1439820022497188

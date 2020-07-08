@@ -26,7 +26,7 @@ def get_data(class_type='metaphors'):
         filename += '_nonmetaphors.txt'
 
     with open(os.path.join(read_dir, filename), 'r') as f:
-        metaphors_adjNoun = f.readlines()
+        data_adjNoun = f.readlines()
 
     if args.mlabelers[0] != 'kmeans':
         filename = args.mlabelers[0] + '_verbNoun_' + ld_filename
@@ -36,19 +36,19 @@ def get_data(class_type='metaphors'):
             filename += '_nonmetaphors.txt'
 
         with open(os.path.join(read_dir, filename), 'r') as f:
-            metaphors_verbNoun = f.readlines()
+            data_verbNoun = f.readlines()
 
-        for i in range(len(metaphors_verbNoun)):
-            metaphors_adjNoun[i] = metaphors_adjNoun[i].strip().split(',')[0]
-            metaphors_verbNoun[i] = metaphors_verbNoun[i].strip().split(',')[0]
-            list_item = metaphors_verbNoun[i] + ';' + metaphors_adjNoun[i]
+        for i in range(len(data_verbNoun)):
+            data_adjNoun[i] = data_adjNoun[i].strip().split(',')[0]
+            data_verbNoun[i] = data_verbNoun[i].strip().split(',')[0]
+            list_item = data_verbNoun[i] + ';' + data_adjNoun[i]
             list_item = list_item.strip(';')
             data.append(list_item)
 
     else:
-        for i in range(len(metaphors_adjNoun)):
-            metaphors_adjNoun[i] = metaphors_adjNoun[i].strip().split(',')[0]
-            data.append(metaphors_adjNoun[i])
+        for i in range(len(data_adjNoun)):
+            data_adjNoun[i] = data_adjNoun[i].strip().split(',')[0]
+            data.append(data_adjNoun[i])
 
     save_file = args.mlabelers[0] + '_' + ld_filename
     if class_type == 'metaphors':
@@ -125,7 +125,7 @@ total_tp = 0
 total_tn = 0
 total_fp = 0
 total_fn = 0
-header = ['token', 'tp_cases', 'fp_cases', 'fn_cases', 'total_cases', 'precision', 'recall',
+header = ['token', 'tp_cases', 'fp_cases', 'tn_cases', 'fn_cases', 'total_cases', 'precision', 'recall',
           'f1-score']
 word_counts = pd.DataFrame(columns=header)
 for token in token_set:
@@ -164,7 +164,7 @@ for token in token_set:
     total_tn += tn
     total_fn += fn
 
-    row = [token, tp, fp, fn, total, precision, recall, f1_score]
+    row = [token, tp, fp, tn, fn, total, precision, recall, f1_score]
     word_counts = word_counts.append(pd.DataFrame([row], columns=header))
 
 print(f'True Positives: {total_tp}')

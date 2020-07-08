@@ -1,0 +1,12 @@
+Labelled data: new_metaphor_corpus
+Method used: kmeans
+
+True Positives: 35
+False Positives: 1673
+True Negatives: 715
+False Negatives: 958
+
+Accuracy: 0.22182786157941436
+Precision: 0.020491803278688523
+Recall: 0.035246727089627394
+F1 score: 0.0259163272861903
