@@ -140,7 +140,8 @@ def darkthoughtsFunction_2(candidates, cand_type, verbose):
 
         first_letter = source[0]
         first_letter = first_letter.lower()
-        alphabets = [chr(ord('a')+i) for i in range(26)]    #isalpha doesn't work because it includes alphabetical characters from other languages too
+        # isalpha() not used, it includes alphabets from other languages too
+        alphabets = [chr(ord('a')+i) for i in range(26)]
         if first_letter not in already_in and first_letter in alphabets:
             already_in.append(first_letter)
 

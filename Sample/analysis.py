@@ -21,22 +21,26 @@ def get_data(class_type='metaphors'):
     data = []
     filename = args.mlabelers[0] + '_adjNoun_' + ld_filename
     if class_type == 'metaphors':
-        filename += '_metaphors.txt'
+        filename += '_metaphors.csv'
     else:
-        filename += '_nonmetaphors.txt'
+        filename += '_nonmetaphors.csv'
 
     with open(os.path.join(read_dir, filename), 'r') as f:
         data_adjNoun = f.readlines()
+        # to drop the header row
+        data_adjNoun = data_adjNoun[1:]
 
     if args.mlabelers[0] != 'kmeans':
         filename = args.mlabelers[0] + '_verbNoun_' + ld_filename
         if class_type == 'metaphors':
-            filename += '_metaphors.txt'
+            filename += '_metaphors.csv'
         else:
-            filename += '_nonmetaphors.txt'
+            filename += '_nonmetaphors.csv'
 
         with open(os.path.join(read_dir, filename), 'r') as f:
             data_verbNoun = f.readlines()
+            # to drop the header row
+            data_verbNoun = data_verbNoun[1:]
 
         for i in range(len(data_verbNoun)):
             data_adjNoun[i] = data_adjNoun[i].strip().split(',')[0]
@@ -52,9 +56,9 @@ def get_data(class_type='metaphors'):
 
     save_file = args.mlabelers[0] + '_' + ld_filename
     if class_type == 'metaphors':
-        save_file += '_metaphors.txt'
+        save_file += '_metaphors.csv'
     else:
-        save_file += '_nonmetaphors.txt'
+        save_file += '_nonmetaphors.csv'
 
     with open(os.path.join(read_dir, save_file), 'w') as f:
         for row in data:
@@ -75,9 +79,9 @@ for i in range(len(sources)):
     true_metaphors.append(str(sources[i]).split(';'))
 token_set = set()
 
-with open(os.path.join(read_dir, args.mlabelers[0] + '_' + ld_filename + '_metaphors.txt'), 'w') as f:
-    for metaphor in metaphors:
-        f.write(metaphor + '\n')
+# with open(os.path.join(read_dir, args.mlabelers[0] + '_' + ld_filename + '_metaphors.txt'), 'w') as f:
+#     for metaphor in metaphors:
+#         f.write(metaphor + '\n')
 
 for i, row in enumerate(metaphors):
     if len(row):

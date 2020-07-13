@@ -98,14 +98,13 @@ if __name__ == "__main__":
                     non_meta_targets_in_row.append(candidate.getTarget())
 
             # temp code: uncomment to print candidates in a file instead of identified metaphors
-            # TODO: Delete this code block
-            # if cand_type == 'nounNoun':
-            #     metaphors_in_row = []
-            #     meta_targets_in_row = []
-            #     for j in range(MI.getCandidates('nounNoun')[i].getSize()):
-            #         candidate = MI.getCandidates('nounNoun')[i].getCandidate(j)
-            #         metaphors_in_row.append(candidate.getSource())
-            #         meta_targets_in_row.append(candidate.getTarget())
+            if cand_type == 'nounNoun':
+                metaphors_in_row = []
+                meta_targets_in_row = []
+                for j in range(MI.getCandidates('nounNoun')[i].getSize()):
+                    candidate = MI.getCandidates('nounNoun')[i].getCandidate(j)
+                    metaphors_in_row.append(candidate.getSource())
+                    meta_targets_in_row.append(candidate.getTarget())
             # temp code ends
 
             metaphors.append(';'.join(metaphors_in_row))
@@ -114,13 +113,17 @@ if __name__ == "__main__":
             non_metaphor_targets.append(';'.join(non_meta_targets_in_row))
 
         ld_filename = args.labelled_data.split('/')[-1][:-4]
-        metaphors_filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '_metaphors.txt'
-        non_metaphors_filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '_nonmetaphors.txt'
+        metaphors_filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '_metaphors.csv'
+        non_metaphors_filename = args.mlabelers[0] + '_' + args.cfinder + '_' + ld_filename + '_nonmetaphors.csv'
         save_dir = os.path.join(os.getcwd(), 'temp')
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)
 
         with open(os.path.join(save_dir, metaphors_filename), 'w') as f:
+            if len(targets):
+                f.write('identified_sources, identified_targets, true_sources, true_targets, text\n')
+            else:
+                f.write('identified_sources, identified_targets, true_sources, text\n')
             for i, metaphor in enumerate(metaphors):
                 if len(targets):
                     f.write('%s,%s,%s,%s,\"%s\"\n' % (metaphor, metaphor_targets[i], sources[i], targets[i], texts[i]))
@@ -128,6 +131,10 @@ if __name__ == "__main__":
                     f.write('%s,%s,%s,\"%s\"\n' % (metaphor, metaphor_targets[i], sources[i], texts[i]))
 
         with open(os.path.join(save_dir, non_metaphors_filename), 'w') as f:
+            if len(targets):
+                f.write('identified_sources, identified_targets, true_sources, true_targets, text\n')
+            else:
+                f.write('identified_sources, identified_targets, true_sources, text\n')
             for i, non_metaphor in enumerate(non_metaphors):
                 if len(targets):
                     f.write('%s,%s,%s,%s,\"%s\"\n' % (non_metaphor, non_metaphor_targets[i], sources[i], targets[i], texts[i]))

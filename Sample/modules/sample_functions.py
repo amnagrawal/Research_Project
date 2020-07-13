@@ -96,31 +96,49 @@ def nounNounFinder(annotatedText):
     wordColumn = annotatedText.getColumn("word")
     pattern = ['of', 'is', 'was', 'were', 'am', 'had', 'will', 'are', 'have']
     # pattern = ['of']
-    ignore_in_pattern = ['a', 'an', 'the']
-    ignore_in_pattern.extend(pattern)
+    # ignore_in_pattern = ['a', 'an', 'the']
+    # ignore_in_pattern.extend(pattern)
+
     for i in range(len(POScolumn) - 1):
-        if POScolumn[i].startswith('NN') and (wordColumn[i + 1] in pattern):
-            sourceNounIndex = i
-            targetNounIndex = i + 1
+        firstNounIndex = i
+        secondNounIndex = i + 1
+
+        indexCheck = lambda x: (x < len(POScolumn))
+        isNoun = lambda x: indexCheck(x) and POScolumn[x].startswith('NN')
+        isDeterminant = lambda x: indexCheck(x) and POScolumn[x] == 'DT'
+        isPartOfPattern = lambda x: indexCheck(x) and wordColumn[x] in pattern
+        isAdjective = lambda x: indexCheck(x) and POScolumn[x] == 'JJ'
+        patternMatches = lambda x: isNoun(x) or isPartOfPattern(x) or isDeterminant(x) or isAdjective(x)
+
+        # Check for metaphor patterns consisting of only two consecutive nouns
+        if isNoun(firstNounIndex) and isNoun(secondNounIndex) and not isNoun(secondNounIndex + 1):
+            sourceNounIndex = secondNounIndex
+            targetNounIndex = firstNounIndex
+            newCandidate = Candidate(annotatedText, sourceNounIndex, (sourceNounIndex, sourceNounIndex),
+                                     targetNounIndex, (targetNounIndex, targetNounIndex))
+            candidates.addCandidate(newCandidate)
+
+        # Check for metaphor patterns of type 'noun-is-noun' and 'noun-of-noun'
+        if isNoun(firstNounIndex) and isPartOfPattern(secondNounIndex):
             candidateFound = False
-            condition1 = lambda x: (x < len(POScolumn)) and POScolumn[x].startswith('NN')
-            condition2 = lambda x: (x < len(wordColumn)) and wordColumn[x] in ignore_in_pattern
-            condition3 = lambda x: (x < len(POScolumn)) and POScolumn[x] == 'JJ'
-            condition = lambda x: condition1(x) or condition2(x) or condition3(x)
-            while condition(targetNounIndex):
-                if condition(targetNounIndex) and not condition(targetNounIndex + 1):
-                    if condition1(targetNounIndex):
+            while patternMatches(secondNounIndex):
+                if not isNoun(secondNounIndex + 1):
+                    if isNoun(secondNounIndex):
                         candidateFound = True
                         break
-                targetNounIndex += 1
+                secondNounIndex += 1
 
             if candidateFound:
-                if 'of' in wordColumn[sourceNounIndex:targetNounIndex+1]:
-                    newCandidate = Candidate(annotatedText, sourceNounIndex, (sourceNounIndex, sourceNounIndex),
-                                         targetNounIndex, (targetNounIndex, targetNounIndex))
+                # Only in case of 'noun-of-noun' pattern the first noun is the source
+                if 'of' in wordColumn[firstNounIndex:secondNounIndex + 1]:
+                    sourceNounIndex = firstNounIndex
+                    targetNounIndex = secondNounIndex
                 else:
-                    newCandidate = Candidate(annotatedText, targetNounIndex, (targetNounIndex, targetNounIndex),
-                                             sourceNounIndex, (sourceNounIndex, sourceNounIndex))
+                    sourceNounIndex = secondNounIndex
+                    targetNounIndex = firstNounIndex
+
+                newCandidate = Candidate(annotatedText, sourceNounIndex, (sourceNounIndex, sourceNounIndex),
+                                         targetNounIndex, (targetNounIndex, targetNounIndex))
                 candidates.addCandidate(newCandidate)
 
     return candidates
