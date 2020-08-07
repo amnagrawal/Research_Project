@@ -95,9 +95,6 @@ def nounNounFinder(annotatedText):
     POScolumn = annotatedText.getColumn("POS")
     wordColumn = annotatedText.getColumn("word")
     pattern = ['of', 'is', 'was', 'were', 'am', 'had', 'will', 'are', 'have']
-    # pattern = ['of']
-    # ignore_in_pattern = ['a', 'an', 'the']
-    # ignore_in_pattern.extend(pattern)
 
     for i in range(len(POScolumn) - 1):
         firstNounIndex = i

@@ -45,7 +45,7 @@ class CollocationList:
         return s
 
 
-# if adj-noun metaphor: pos_1 = 'jj' and pos_2 = 'nn'
+# if adj-noun metaphor: pos_1 = 'jj' and pos_2 = 'nounNoun'
 # if verb-noun metaphor: pos_1 = 'v' and pos_2 = 'n'
 def parseNgrams(collocations, path, n, pos_1, pos_2):
     with open(path) as tsv:

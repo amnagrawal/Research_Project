@@ -11,9 +11,12 @@ FILE_PREFIX = 'data/darkthoughts/'
 FILE_SUFFIX = '.txt'
 ADJ_FILE = 'adjNoun/an'
 VERB_FILE = 'verbNoun/vn'
+NOUN_FILE = 'nounNoun/nn'
 N_ADJ_FILE = [2, 3, 4, 5]
 N_VERB_FILE = [2]
-FILE_TYPE = {"adjNoun": (ADJ_FILE, N_ADJ_FILE), "verbNoun": (VERB_FILE, N_VERB_FILE)}
+N_NOUN_FILE = [2]
+FILE_TYPE = {"adjNoun": (ADJ_FILE, N_ADJ_FILE), "verbNoun": (VERB_FILE, N_VERB_FILE),
+             "nounNoun": (NOUN_FILE, N_NOUN_FILE)}
 
 ADJ_FILES = [("data/darkthoughts/adjNoun/an2.txt", 2), ("data/darkthoughts/adjNoun/an3.txt", 3),
              ("data/darkthoughts/adjNoun/an4.txt", 4), ("data/darkthoughts/adjNoun/an5.txt", 5)]
@@ -21,7 +24,7 @@ VERB_FILES = [("data/darkthoughts/verbNoun/vn2.txt",
                2)]  # This file is a filtered version of vn2_v1: it only keep the lines with frequency > 1000
 NGRAMS_FILES = {"adjNoun": ADJ_FILES, "verbNoun": VERB_FILES}
 
-POS = [{"adjNoun": "jj", "verbNoun": "v"}, {"adjNoun": "nn", "verbNoun": "n"}]
+POS = [{"adjNoun": "jj", "verbNoun": "v", "nounNoun": "n"}, {"adjNoun": "nounNoun", "verbNoun": "n", "nounNoun": "n"}]
 
 CONCRETENESS_FILE = "data/concreteness.txt"
 CAT_FILE = "data/categories.txt"
