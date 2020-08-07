@@ -295,13 +295,9 @@ def identify_metaphors_abstractness_cosine_edit_dist(candidates, cand_type, verb
     components = 2
     if len(candidates_list) < 2:
         components = len(candidates_list)
-    MET_AN_EN = pd.read_table(
-        './data/training_adj_noun_met_en.txt',
-        delim_whitespace=True, names=('adj', 'noun'))
+    MET_AN_EN = pd.read_csv('./data/training_adj_noun_met_en.txt', names=('adj', 'noun'), delimiter=" ")
     MET_AN_EN['class'] = 1
-    LIT_AN_EN = pd.read_table(
-        './data/training_adj_noun_nonmet_en.txt',
-        delim_whitespace=True, names=('adj', 'noun'))
+    LIT_AN_EN = pd.read_csv('./data/training_adj_noun_nonmet_en.txt', names=('adj', 'noun'), delimiter=" ")
     LIT_AN_EN['class'] = 0
 
     fields = ['adj', 'noun']
