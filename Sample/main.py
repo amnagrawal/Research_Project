@@ -98,13 +98,13 @@ if __name__ == "__main__":
                     non_meta_targets_in_row.append(candidate.getTarget())
 
             # temp code: uncomment to print candidates in a file instead of identified metaphors
-            if cand_type == 'nounNoun':
-                metaphors_in_row = []
-                meta_targets_in_row = []
-                for j in range(MI.getCandidates('nounNoun')[i].getSize()):
-                    candidate = MI.getCandidates('nounNoun')[i].getCandidate(j)
-                    metaphors_in_row.append(candidate.getSource())
-                    meta_targets_in_row.append(candidate.getTarget())
+            # if cand_type == 'nounNoun':
+            #     metaphors_in_row = []
+            #     meta_targets_in_row = []
+            #     for j in range(MI.getCandidates('nounNoun')[i].getSize()):
+            #         candidate = MI.getCandidates('nounNoun')[i].getCandidate(j)
+            #         metaphors_in_row.append(candidate.getSource())
+            #         meta_targets_in_row.append(candidate.getTarget())
             # temp code ends
 
             metaphors.append(';'.join(metaphors_in_row))

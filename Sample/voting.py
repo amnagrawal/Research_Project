@@ -11,13 +11,13 @@ texts, sources, targets, labels = getText(args)
 ld_filename = args.labelled_data.split('/')[-1][:-4]
 read_dir = os.path.join(os.getcwd(), 'temp')
 
-metaphor_files = [os.path.join(read_dir, 'kmeans_') + ld_filename + '_metaphors.txt',
-                  os.path.join(read_dir, 'darkthoughts_') + ld_filename + '_metaphors.txt',
-                  os.path.join(read_dir, 'newCluster_') + ld_filename + '_metaphors.txt']
+metaphor_files = [os.path.join(read_dir, 'kmeans_') + ld_filename + '_metaphors.csv',
+                  os.path.join(read_dir, 'darkthoughts_') + ld_filename + '_metaphors.csv',
+                  os.path.join(read_dir, 'newCluster_') + ld_filename + '_metaphors.csv']
 
-non_metaphor_files = [os.path.join(read_dir, 'kmeans_') + ld_filename + '_nonmetaphors.txt',
-                  os.path.join(read_dir, 'darkthoughts_') + ld_filename + '_nonmetaphors.txt',
-                  os.path.join(read_dir, 'newCluster_') + ld_filename + '_nonmetaphors.txt']
+non_metaphor_files = [os.path.join(read_dir, 'kmeans_') + ld_filename + '_nonmetaphors.csv',
+                  os.path.join(read_dir, 'darkthoughts_') + ld_filename + '_nonmetaphors.csv',
+                  os.path.join(read_dir, 'newCluster_') + ld_filename + '_nonmetaphors.csv']
 
 
 def readFile(path):
@@ -50,7 +50,7 @@ def voting(list1, list2, list3):
         if token in list3:
             count += 1
 
-        if count > 0:
+        if count > 1:
             # print(token)
             results.append(token)
 

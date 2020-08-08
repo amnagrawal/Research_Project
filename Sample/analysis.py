@@ -1,3 +1,5 @@
+# Author: Aman Agrawal
+
 import os
 import sys
 
@@ -9,8 +11,6 @@ args = parseCommandLine()
 texts, sources, targets, labels = getText(args)
 
 ld_filename = args.labelled_data.split('/')[-1][:-4]
-# metaphors_filename = args.mlabelers[0] + '_adjNoun_' + ld_filename + '_metaphors.txt'
-# non_metaphors_filename = args.mlabelers[0] + '_adjNoun_' + ld_filename + '_nonmetaphors.txt'
 read_dir = os.path.join(os.getcwd(), 'temp')
 if not os.path.isdir(read_dir):
     print("Read directory not found: Run the main file for labelled data first")
@@ -30,29 +30,35 @@ def get_data(class_type='metaphors'):
         # to drop the header row
         data_adjNoun = data_adjNoun[1:]
 
-    if args.mlabelers[0] != 'kmeans':
-        filename = args.mlabelers[0] + '_verbNoun_' + ld_filename
-        if class_type == 'metaphors':
-            filename += '_metaphors.csv'
-        else:
-            filename += '_nonmetaphors.csv'
-
-        with open(os.path.join(read_dir, filename), 'r') as f:
-            data_verbNoun = f.readlines()
-            # to drop the header row
-            data_verbNoun = data_verbNoun[1:]
-
-        for i in range(len(data_verbNoun)):
-            data_adjNoun[i] = data_adjNoun[i].strip().split(',')[0]
-            data_verbNoun[i] = data_verbNoun[i].strip().split(',')[0]
-            list_item = data_verbNoun[i] + ';' + data_adjNoun[i]
-            list_item = list_item.strip(';')
-            data.append(list_item)
-
+    filename = args.mlabelers[0] + '_nounNoun_' + ld_filename
+    if class_type == 'metaphors':
+        filename += '_metaphors.csv'
     else:
-        for i in range(len(data_adjNoun)):
-            data_adjNoun[i] = data_adjNoun[i].strip().split(',')[0]
-            data.append(data_adjNoun[i])
+        filename += '_nonmetaphors.csv'
+
+    with open(os.path.join(read_dir, filename)) as f:
+        data_nounNoun = f.readlines()
+        # to drop the header row
+        data_nounNoun = data_nounNoun[1:]
+
+    filename = args.mlabelers[0] + '_verbNoun_' + ld_filename
+    if class_type == 'metaphors':
+        filename += '_metaphors.csv'
+    else:
+        filename += '_nonmetaphors.csv'
+
+    with open(os.path.join(read_dir, filename), 'r') as f:
+        data_verbNoun = f.readlines()
+        # to drop the header row
+        data_verbNoun = data_verbNoun[1:]
+
+    for i in range(len(data_verbNoun)):
+        data_adjNoun[i] = data_adjNoun[i].strip().split(',')[0]
+        data_verbNoun[i] = data_verbNoun[i].strip().split(',')[0]
+        data_nounNoun[i] = data_nounNoun[i].strip().split(',')[0]
+        list_item = data_verbNoun[i] + ';' + data_adjNoun[i] + ';' + data_nounNoun[i]
+        list_item = list_item.strip(';')
+        data.append(list_item)
 
     save_file = args.mlabelers[0] + '_' + ld_filename
     if class_type == 'metaphors':
@@ -88,22 +94,24 @@ for i, row in enumerate(metaphors):
         metaphors_identified = row.split(';')
         metaphors_identified = list(set(metaphors_identified))
         for token in metaphors_identified:
-            token_set.update([token])
+            # token_set.update([token])
+            token_set.add(token)
             if token in true_metaphors[i]:
-                if token in true_positive_cases.keys():
+                if token in true_positive_cases:
                     true_positive_cases[token] += 1
                 else:
                     true_positive_cases[token] = 1
             else:
-                if token in false_positive_cases.keys():
+                if token in false_positive_cases:
                     false_positive_cases[token] += 1
                 else:
                     false_positive_cases[token] = 1
 
         for token in true_metaphors[i]:
-            token_set.update([token])
+            # token_set.update([token])
+            token_set.add(token)
             if token not in metaphors_identified:
-                if token in false_negative_cases.keys():
+                if token in false_negative_cases:
                     false_negative_cases[token] += 1
                 else:
                     false_negative_cases[token] = 1
@@ -113,14 +121,15 @@ for i, row in enumerate(non_metaphors):
         non_metaphors_identified = row.split(';')
         non_metaphors_identified = list(set(non_metaphors_identified))
         for token in non_metaphors_identified:
-            token_set.update([token])
+            # token_set.update([token])
+            token_set.add(token)
             if token not in true_metaphors[i]:
-                if token in true_negative_cases.keys():
+                if token in true_negative_cases:
                     true_negative_cases[token] += 1
                 else:
                     true_negative_cases[token] = 1
             else:
-                if token in false_negative_cases.keys():
+                if token in false_negative_cases:
                     false_negative_cases[token] += 1
                 else:
                     false_negative_cases[token] = 1
@@ -135,7 +144,7 @@ word_counts = pd.DataFrame(columns=header)
 for token in token_set:
     # true +ve/-ve and false +ve/-ve
     tp, tn, fp, fn = 0, 0, 0, 0
-    if token in true_positive_cases.keys():
+    if token in true_positive_cases:
         tp = true_positive_cases[token]
 
     if token in false_positive_cases.keys():
