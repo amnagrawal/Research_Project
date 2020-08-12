@@ -59,14 +59,14 @@ def voting(list1, list2, list3):
 
 def get_data(files):
     data = []
-    file1 = readFile(files[0])
-    file2 = readFile(files[1])
-    file3 = readFile(files[2])
+    file1 = readFile(files[0])[1:]
+    file2 = readFile(files[1])[1:]
+    file3 = readFile(files[2])[1:]
 
     for i, row in enumerate(file1):
-        temp = voting(file1[i].strip().split(';'),
-                      file2[i].strip().split(';'),
-                      file3[i].strip().split(';'))
+        temp = voting(file1[i].strip().split(',')[0].split(';'),
+                      file2[i].strip().split(',')[0].split(';'),
+                      file3[i].strip().split(',')[0].split(';'))
         data.append(';'.join(temp))
     return data
 

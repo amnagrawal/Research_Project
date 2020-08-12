@@ -1,12 +1,12 @@
 Labelled data: essays
 Method used: voting
 
-True Positives: 747
-False Positives: 9215
-True Negatives: 10489
-False Negatives: 3492
+True Positives: 608
+False Positives: 2895
+True Negatives: 9305
+False Negatives: 2604
 
-Accuracy: 0.46928120953932256
-Precision: 0.07498494278257378
-Recall: 0.1762208067940552
-F1 score: 0.10520385888317724
+Accuracy: 0.643200103815209
+Precision: 0.17356551527262346
+Recall: 0.18929016189290163
+F1 score: 0.18108711839166045

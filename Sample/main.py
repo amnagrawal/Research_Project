@@ -90,11 +90,14 @@ if __name__ == "__main__":
             non_meta_targets_in_row = []
             for j in range(MI.getMetaphors(args.mlabelers[0])[i].getSize()):
                 candidate = MI.getMetaphors(args.mlabelers[0])[i].getMetaphor(j)
+                source = candidate.getSource()
+                source_index = MI.getAnnotatedText(i).getColumn("lemma").index(source)
+                source = MI.getAnnotatedText(i).getLine(source_index)['word']
                 if candidate.getPredictedLabel():
-                    metaphors_in_row.append(candidate.getSource())
+                    metaphors_in_row.append(source)
                     meta_targets_in_row.append(candidate.getTarget())
                 else:
-                    non_metaphors_in_row.append(candidate.getSource())
+                    non_metaphors_in_row.append(source)
                     non_meta_targets_in_row.append(candidate.getTarget())
 
             # temp code: uncomment to print candidates in a file instead of identified metaphors

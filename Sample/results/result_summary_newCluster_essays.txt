@@ -1,12 +1,12 @@
 Labelled data: essays
 Method used: newCluster
 
-True Positives: 16
-False Positives: 226
-True Negatives: 10479
-False Negatives: 1118
+True Positives: 33
+False Positives: 248
+True Negatives: 12208
+False Negatives: 1609
 
-Accuracy: 0.8864768983866881
-Precision: 0.06611570247933884
-Recall: 0.014109347442680775
-F1 score: 0.023255813953488372
+Accuracy: 0.8682791885373812
+Precision: 0.11743772241992882
+Recall: 0.020097442143727162
+F1 score: 0.03432137285491419

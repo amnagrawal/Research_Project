@@ -52,7 +52,12 @@ def get_data(class_type='metaphors'):
         # to drop the header row
         data_verbNoun = data_verbNoun[1:]
 
+    texts = []
+    true_sources = []
     for i in range(len(data_verbNoun)):
+        texts.append(','.join(data_verbNoun[i].strip().split(',')[3:]))
+        true_sources.append(data_verbNoun[i].strip().split(',')[2])
+
         data_adjNoun[i] = data_adjNoun[i].strip().split(',')[0]
         data_verbNoun[i] = data_verbNoun[i].strip().split(',')[0]
         data_nounNoun[i] = data_nounNoun[i].strip().split(',')[0]
@@ -67,8 +72,10 @@ def get_data(class_type='metaphors'):
         save_file += '_nonmetaphors.csv'
 
     with open(os.path.join(read_dir, save_file), 'w') as f:
-        for row in data:
-            f.write(row + '\n')
+        f.write('identified_sources, true_sources, text\n')
+        for i, row in enumerate(data):
+            f.write(','.join([row, true_sources[i], texts[i]]))
+            f.write('\n')
 
     return data
 
